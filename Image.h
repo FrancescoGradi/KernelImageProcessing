@@ -37,14 +37,14 @@ public:
 
     Pixel *getPixels() const;
 
-    void setPixels(Pixel *pixels);
+    void setPixels(Pixel *pixels, int i, int j);
 
 private:
-    static const int width;
-    static const int height;
-    static const int channels;
-    static const std::string magic;
-    Pixel* pixels[width][height][channels];
+    int width;
+    int height;
+    int channels;
+    std::string magic;
+    Pixel* pixels;
 };
 
 

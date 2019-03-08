@@ -7,7 +7,9 @@
 #include <iostream>
 #include <fstream>
 
-Image::Image(): width(0), height(0), channels(0), pixels(nullptr) {}
+Image::Image(): width(0), height(0), channels(0), pixels(nullptr) {
+
+}
 
 Image::Image(int width, int height, int channels) {
 
@@ -15,7 +17,7 @@ Image::Image(int width, int height, int channels) {
     this->height = height;
     this->channels = channels;
 
-    Pixel* pixels = nullptr;
+    Pixel* pixels[width][height];
 }
 
 Image::~Image() {
@@ -58,8 +60,8 @@ Pixel *Image::getPixels() const {
     return pixels;
 }
 
-void Image::setPixels(Pixel *pixels) {
-    Image::pixels;
+void Image::setPixels(Pixel *pixels, int i, int j) {
+    Image::pixels[j][i] = pixels;
 }
 
 void Image::loadImage(const std::string pathImage) {
@@ -89,7 +91,7 @@ void Image::loadImage(const std::string pathImage) {
             p->g = atoi(byteRead.c_str());
             picture >> byteRead;
             p->b = atoi(byteRead.c_str());
-            this->setPixels(p);
+            this->setPixels(p, j, i);
         }
     }
 
