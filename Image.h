@@ -12,12 +12,13 @@ class Image {
 
 public:
     Image();
-    Image(int width, int height, int channels);
+    Image(std::string pathImage);
     virtual ~Image();
 
     void loadImage(const std::string pathImage);
 
     void headerCommentCheck(std::ifstream* picture);
+
 
     int getWidth() const;
 
@@ -35,16 +36,16 @@ public:
 
     void setMagic(std::string magic);
 
-    Pixel *getPixels() const;
+    Pixel **getPixels() const;
 
-    void setPixels(Pixel *pixels, int i, int j);
+    void setPixels(Pixel **pixels);
 
 private:
     int width;
     int height;
     int channels;
     std::string magic;
-    Pixel* pixels;
+    Pixel** pixels;
 };
 
 

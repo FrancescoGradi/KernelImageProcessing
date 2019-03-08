@@ -8,13 +8,18 @@
 
 int main() {
 
-    Image* img = new Image(508, 493, 3);
-    img->loadImage("../computer_programming.ppm");
+    Image* img = new Image("../computer_programming.ppm");
 
     std::cout << img->getWidth() << std::endl;
     std::cout << img->getHeight() << std::endl;
     std::cout << img->getMagic() << std::endl;
-    std::cout << img->getPixels() << std::endl;
+
+    for(int i = 0; i < img->getWidth(); i++) {
+        for(int j = 0; j < img->getHeight(); j++) {
+
+            std::cout << img->getPixels()[i][j].getR() << std::endl;
+        }
+    }
 
     return 0;
 }
