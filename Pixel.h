@@ -6,9 +6,9 @@
 #define KERNELIMAGEPROCESSING_PIXEL_H
 
 typedef struct {
-    char r;
-    char g;
-    char b;
+    int r;
+    int g;
+    int b;
 } Pixel;
 
 
