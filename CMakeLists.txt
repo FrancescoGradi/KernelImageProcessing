@@ -3,4 +3,4 @@ project(KernelImageProcessing)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(KernelImageProcessing main.cpp Image.cpp Image.h Image.cpp Image.h Pixel.h)
+add_executable(KernelImageProcessing main.cpp Image.cpp Image.h Pixel.h)

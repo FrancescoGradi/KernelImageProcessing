@@ -1,3 +1,5 @@
+#include "Image.h"
+
 #include <iostream>
 #include <fstream>
 #include <stdlib.h>
@@ -6,20 +8,8 @@
 
 int main() {
 
-    //std::ifstream picture("image.png");
-    //std::string path = "image.png";
-
-    //picture.open(path, std::ifstream::in);
-
-    //if (picture.fail()) {
-    //    std::cout << "Errore";
-    //}
-
-    std::string path = "image.png";
-
-    FILE* file = fopen("/home/fra/Scrivania/KernelImageProcessing/image.png", "rb");
-
-    std::cout << file << std::endl;
+    Image* img = new Image(2, 2, 3);
+    img->loadImage("../computer_programming.ppm");
 
 
     return 0;
