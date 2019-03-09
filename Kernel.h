@@ -13,13 +13,16 @@ public:
     // avendo come argomento l'n delle dimensioni. Per ora si usano metodi statici che possono essere
     // chiamati anche senza instanziare un oggetto, ma lo svantaggio e' che dobbiamo usare un delete una
     // volta che la matrice non ci serve piu' (penso che in teoria in questi casi il distruttore non
-    // intervenga.
+    // intervenga.)
 
     Kernel();
     virtual ~Kernel();
 
     static float** getIdentity(int n);
 
+    static float** getGaussianBlur();
+
+    static float** getSharpen();
 
     // Altre matrici da utilizzare: blur, sharpen, sobel, edgeDetection, gaussian blur
 
