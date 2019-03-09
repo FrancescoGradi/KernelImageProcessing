@@ -66,6 +66,7 @@ void Image::setPixels(Pixel **pixels) {
 void Image::loadImage(const std::string pathImage) {
 
     std::ifstream picture;
+    char* tmp;
 
     picture.open(pathImage);
     if (picture.fail()) {
@@ -76,24 +77,26 @@ void Image::loadImage(const std::string pathImage) {
     }
 
     // Assegna agli attributi di Image i valori necessari per procedere allo scorrimento del payload
+    // Scopre anche le dimensioni dell'immagine e il magic number
     headerCommentCheck(&picture);
+
+    int size = width * height * 3;
+    tmp = new char[size];
+
+    // Ho ripreso il codice di loro che prevedeva dei char per leggere i byte
+    picture.read(tmp, size);
 
     pixels = new Pixel*[height];
 
     std::string byteRead = "";
-    for(int i = 0; i < this->height; i++) {
-        for(int j = 0; j < this->width; j++) {
-            pixels[i] = new Pixel[width];
+    for(int i = 0; i < height; i++) {
+        pixels[i] = new Pixel[width];
 
-            picture >> byteRead;
-            pixels[i][j].setR(atoi(byteRead.c_str()));
-            picture >> byteRead;
-            pixels[i][j].setG(atoi(byteRead.c_str()));
-            picture >> byteRead;
-            pixels[i][j].setB(atoi(byteRead.c_str()));
+        for(int j = 0; j < width; j++) {
 
-            // TODO Non setta per bene le cose, errori nell'allocare la matrice?
-            pixels[i][j].setR(12);
+            pixels[i][j].setR(tmp[3*i*width + 3*j + 0]);
+            pixels[i][j].setG(tmp[3*i*width + 3*j + 1]);
+            pixels[i][j].setB(tmp[3*i*width + 3*j + 2]);
 
         }
     }
@@ -167,7 +170,5 @@ void Image::headerCommentCheck(std::ifstream* picture) {
             isComment = true;
         height = atoi(byteToCheck.c_str());
     }
-
-    isComment = false;
 
 }

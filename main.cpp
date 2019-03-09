@@ -2,8 +2,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <stdlib.h>
-#include <stdio.h>
 
 
 int main() {
@@ -14,10 +12,16 @@ int main() {
     std::cout << img->getHeight() << std::endl;
     std::cout << img->getMagic() << std::endl;
 
-    for(int i = 0; i < img->getWidth(); i++) {
-        for(int j = 0; j < img->getHeight(); j++) {
+    for(int i = 0; i < img->getHeight(); i++) {
+        for(int j = 0; j < img->getWidth(); j++) {
 
-            std::cout << img->getPixels()[i][j].getR() << std::endl;
+            // All'inizio mi dava valori strani a volte, PENSO di aver risolto mettendo al posto dell'int un unsigned
+            // char, occupa 1 byte e va da 0 a 255... Castandolo a unsigned int si possono vedere i valori.
+            std::cout << " " <<std::endl;
+            std::cout << (unsigned int)img->getPixels()[i][j].getR() << std::endl;
+            std::cout << (unsigned int)img->getPixels()[i][j].getG() << std::endl;
+            std::cout << (unsigned int)img->getPixels()[i][j].getB() << std::endl;
+
         }
     }
 

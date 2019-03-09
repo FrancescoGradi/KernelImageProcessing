@@ -12,37 +12,37 @@ public:
         g = 0;
         b = 0;
     }
-    Pixel(int r, int g, int b):r(r), g(g), b(b) {}
-    virtual ~Pixel() {}
+    Pixel(unsigned char r, unsigned char g, unsigned char b):r(r), g(g), b(b) {}
+    virtual ~Pixel() = default;
 
-    int getR() const {
+    unsigned char getR() const {
         return r;
     }
 
-    void setR(int r) {
+    void setR(unsigned char r) {
         Pixel::r = r;
     }
 
-    int getG() const {
+    unsigned char getG() const {
         return g;
     }
 
-    void setG(int g) {
+    void setG(unsigned char g) {
         Pixel::g = g;
     }
 
-    int getB() const {
+    unsigned char getB() const {
         return b;
     }
 
-    void setB(int b) {
+    void setB(unsigned char b) {
         Pixel::b = b;
     }
 
 private:
-    int r;
-    int g;
-    int b;
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
 };
 
 
