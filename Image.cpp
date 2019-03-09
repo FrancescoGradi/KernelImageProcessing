@@ -18,9 +18,15 @@ Image::Image(std::string pathImage) {
 
 Image::~Image() {
 
-    for(int i = 0; i < width; i++) {
-        delete [] pixels[i];
+    if (pixels != nullptr) {
+
+        for(int i = 0; i < width; i++) {
+            delete [] pixels[i];
+        }
+
+        delete [] pixels;
     }
+
 }
 
 int Image::getWidth() const {
@@ -94,9 +100,9 @@ void Image::loadImage(const std::string pathImage) {
 
         for(int j = 0; j < width; j++) {
 
-            pixels[i][j].setR(tmp[3*i*width + 3*j + 0]);
-            pixels[i][j].setG(tmp[3*i*width + 3*j + 1]);
-            pixels[i][j].setB(tmp[3*i*width + 3*j + 2]);
+            pixels[i][j].setR((unsigned char) tmp[3*i*width + 3*j + 0]);
+            pixels[i][j].setG((unsigned char) tmp[3*i*width + 3*j + 1]);
+            pixels[i][j].setB((unsigned char) tmp[3*i*width + 3*j + 2]);
 
         }
     }

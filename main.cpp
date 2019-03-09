@@ -1,4 +1,5 @@
 #include "Image.h"
+#include "Kernel.h"
 
 #include <iostream>
 #include <fstream>
@@ -24,6 +25,22 @@ int main() {
 
         }
     }
+
+    int n = 9;
+    auto identity = Kernel::getIdentity(n);
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            std::cout << identity[i][j] << std::endl;
+        }
+    }
+
+    // Evitare memory leak
+    for (int i = 0; i < n; i++) {
+        delete [] identity[i];
+    }
+
+    delete [] identity;
 
     return 0;
 }
