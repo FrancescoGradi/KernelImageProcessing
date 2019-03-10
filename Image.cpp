@@ -111,82 +111,24 @@ void Image::loadImage(const std::string pathImage) {
 }
 
 void Image::headerCommentCheck(std::ifstream* picture) {
-    /*
-     *
-     * Ci sono dei problemi qua
-     * TODO Fix (la seconda parte non commentata sembra funzionare)
-     *
+
     std::string byteToCheck = "";
     bool isComment = false;
 
-    for(int i = 0; i < 4; i++) {
-        while (!isComment) {
-            *picture >> byteToCheck;
-            if (byteToCheck == "#")
-                std::getline(*picture, byteToCheck);
-            else
-                isComment = true;
-            if(i == 0) {
+    for(int i = 0; i < 3; i++) {
+        *picture >> byteToCheck;
+        if (byteToCheck == "#")
+            std::getline(*picture, byteToCheck);
+        else {
+            if (i == 0) {
                 this->magic = byteToCheck;
-                std::cout << "qui";
             }
             else if (i == 1) {
                 this->width = atoi(byteToCheck.c_str());
-                std::cout << "quo";
             }
             else if (i == 2) {
                 this->height = atoi(byteToCheck.c_str());
-                std::cout << "qua";
-
             }
-        }
-    }
-    */
-    std::string byteToCheck = "";
-    bool isComment = false;
-
-    while (!isComment) {
-        *picture >> byteToCheck;
-        if (byteToCheck == "#")
-            std::getline(*picture, byteToCheck);
-        else
-            isComment = true;
-        magic = byteToCheck;
-    }
-
-    isComment = false;
-
-    while (!isComment) {
-        *picture >> byteToCheck;
-        if (byteToCheck == "#")
-            std::getline(*picture, byteToCheck);
-        else
-            isComment = true;
-        //a va convertito in intero
-        width = atoi(byteToCheck.c_str());
-    }
-
-    isComment = false;
-
-    while (!isComment) {
-        *picture >> byteToCheck;
-        if (byteToCheck == "#")
-            std::getline(*picture, byteToCheck);
-        else
-            isComment = true;
-        height = atoi(byteToCheck.c_str());
-    }
-
-    isComment = false;
-
-    if (magic != "P1" and magic != "P4") {
-        while (!isComment) {
-            *picture >> byteToCheck;
-            if (byteToCheck == "#")
-                std::getline(*picture, byteToCheck);
-            else
-                isComment = true;
-            max = atoi(byteToCheck.c_str());
         }
     }
 

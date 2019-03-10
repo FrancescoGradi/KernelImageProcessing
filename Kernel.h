@@ -6,7 +6,10 @@
 #define KERNELIMAGEPROCESSING_KERNEL_H
 
 
+#include "Image.h"
+
 class Kernel {
+
 public:
     // Dobbiamo trovare un modo semifurbo per gestire le differenti dimensioni delle matrici di kernel.
     // Pensavo di chiamare un metodo statico che ti rendesse direttamente la matrice richiesta, magari
@@ -15,16 +18,23 @@ public:
     // volta che la matrice non ci serve piu' (penso che in teoria in questi casi il distruttore non
     // intervenga.)
 
-    Kernel();
+    Kernel(int size, std::string type);
     virtual ~Kernel();
 
-    static float** getIdentity(int n);
+    std::string getType();
 
-    static float** getGaussianBlur();
+    float** getFilter();
 
-    static float** getSharpen();
+    static Image* applyFiltering(Image* img, float** filter); // sarò la funzione che fa il filtraggio
 
     // Altre matrici da utilizzare: blur, sharpen, sobel, edgeDetection, gaussian blur
+
+protected:
+    float** filter;
+
+private:
+    int size;
+    std::string type;
 
 };
 

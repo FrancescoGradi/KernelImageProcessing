@@ -1,5 +1,6 @@
 #include "Image.h"
 #include "Kernel.h"
+#include "KernelFactory.h"
 
 #include <iostream>
 #include <fstream>
@@ -15,7 +16,7 @@ int main() {
     std::cout << img->getHeight() << std::endl;
     std::cout << img->getMagic() << std::endl;
 
-    for(int i = 0; i < img->getHeight(); i++) {
+    /*for(int i = 0; i < img->getHeight(); i++) {
         for(int j = 0; j < img->getWidth(); j++) {
 
             // All'inizio mi dava valori strani a volte, PENSO di aver risolto mettendo al posto dell'int un unsigned
@@ -26,10 +27,25 @@ int main() {
             std::cout << img->getPixels()[i][j].getB() << std::endl;
 
         }
-    }
+    }*/
 
     int n = 3;
-    auto identity = Kernel::getIdentity(n);
+    int m = 5;
+    auto* kf = new KernelFactory();
+
+    Kernel* blur = kf->createKernel(n, "gauss");
+    Kernel* identity = kf->createKernel(m, "identity");
+    std::cout << "Blur:" << std::endl;
+    blur->getFilter();
+    std::cout << "Identity:" << std::endl;
+    identity->getFilter();
+
+    delete blur;
+    delete identity;
+
+    return 0;
+
+    /*auto identity = Kernel::getIdentity(n);
 
     std::cout << "Kernel: " << std::endl;
     for (int i = 0; i < n; i++) {
@@ -58,25 +74,5 @@ int main() {
         }
         std::cout << " " << std::endl;
     }
-
-    // Evitare memory leak
-    for (int i = 0; i < n; i++) {
-        delete [] identity[i];
-    }
-
-    delete [] identity;
-
-    for (int i = 0; i < 3; i++) {
-        delete [] blur[i];
-    }
-
-    delete [] blur;
-
-    for (int i = 0; i < 3; i++) {
-        delete [] sharpen[i];
-    }
-
-    delete [] sharpen;
-
-    return 0;
+     */
 }
