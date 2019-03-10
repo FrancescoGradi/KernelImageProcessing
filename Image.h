@@ -12,10 +12,11 @@ class Image {
 
 public:
     Image();
-    Image(std::string pathImage);
+    explicit Image(std::string pathImage);
     virtual ~Image();
 
-    void loadImage(const std::string pathImage);
+    void loadImage(std::string pathImage);
+    void storeImage(std::string pathDest);
 
     void headerCommentCheck(std::ifstream* picture);
 
@@ -44,6 +45,7 @@ private:
     int width;
     int height;
     int channels;
+    int max;
     std::string magic;
     Pixel** pixels;
 };

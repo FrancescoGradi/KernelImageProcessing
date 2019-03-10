@@ -8,7 +8,7 @@
 #include <iostream>
 #include <fstream>
 
-Image::Image(): width(0), height(0), channels(0), pixels(nullptr) {}
+Image::Image(): width(0), height(0), channels(0), max(0), pixels(nullptr) {}
 
 Image::Image(std::string pathImage) {
     // Costruttore che incapsula il caricamento dell'immagine
@@ -100,9 +100,9 @@ void Image::loadImage(const std::string pathImage) {
 
         for(int j = 0; j < width; j++) {
 
-            pixels[i][j].setR((unsigned char) tmp[3*i*width + 3*j + 0]);
-            pixels[i][j].setG((unsigned char) tmp[3*i*width + 3*j + 1]);
-            pixels[i][j].setB((unsigned char) tmp[3*i*width + 3*j + 2]);
+            pixels[i][j].setR(tmp[3*i*width + 3*j + 0]);
+            pixels[i][j].setG(tmp[3*i*width + 3*j + 1]);
+            pixels[i][j].setB(tmp[3*i*width + 3*j + 2]);
 
         }
     }
@@ -176,5 +176,46 @@ void Image::headerCommentCheck(std::ifstream* picture) {
             isComment = true;
         height = atoi(byteToCheck.c_str());
     }
+
+    isComment = false;
+
+    if (magic != "P1" and magic != "P4") {
+        while (!isComment) {
+            *picture >> byteToCheck;
+            if (byteToCheck == "#")
+                std::getline(*picture, byteToCheck);
+            else
+                isComment = true;
+            max = atoi(byteToCheck.c_str());
+        }
+    }
+
+}
+
+void Image::storeImage(std::string pathDest) {
+
+    if (pixels == nullptr) {
+        std::cout << "No image to store." << std::endl;
+        return;
+    }
+
+    std::ofstream img;
+    img.open(pathDest);
+
+    char* tmp;
+    tmp = new char[width * height * 3];
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; i < width; i++) {
+            tmp[3*i*width + 3*j + 0] = (char) pixels[j][i].getR();
+            tmp[3*i*width + 3*j + 1] = (char) pixels[j][i].getG();
+            tmp[3*i*width + 3*j + 2] = (char) pixels[j][i].getB();
+        }
+    }
+
+    img << magic << std::endl << width << " " << height << std::endl << std::to_string(max) << std::endl;
+
+    img.write(tmp, width * height * 3);
+    img.close();
 
 }
