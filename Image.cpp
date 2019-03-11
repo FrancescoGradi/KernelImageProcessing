@@ -115,7 +115,7 @@ void Image::headerCommentCheck(std::ifstream* picture) {
     std::string byteToCheck = "";
     bool isComment = false;
 
-    for(int i = 0; i < 3; i++) {
+    for(int i = 0; i < 4; i++) {
         *picture >> byteToCheck;
         if (byteToCheck == "#")
             std::getline(*picture, byteToCheck);
@@ -128,6 +128,9 @@ void Image::headerCommentCheck(std::ifstream* picture) {
             }
             else if (i == 2) {
                 this->height = atoi(byteToCheck.c_str());
+            }
+            else if (i == 3) {
+                this->max = atoi(byteToCheck.c_str());
             }
         }
     }
@@ -150,7 +153,7 @@ void Image::storeImage(std::string pathDest) {
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             // Risalvando l'immagine torna con questi offset scambiati, per qualche motivo... (cosi' pero' dovrebbe
-            // funzionare correttamente almeno...
+            // funzionare correttamente almeno...)
 
             tmp[3*i*width + 3*j + 2] = pixels[i][j].getR();
             tmp[3*i*width + 3*j + 0] = pixels[i][j].getG();

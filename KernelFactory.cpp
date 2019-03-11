@@ -6,6 +6,7 @@
 #include "KernelFactory.h"
 #include "Filters/GaussianBlur.h"
 #include "Filters/Identity.h"
+#include "Filters/Sharpen.h"
 
 Kernel* KernelFactory::createKernel(int size, std::string type) {
 
@@ -18,6 +19,10 @@ Kernel* KernelFactory::createKernel(int size, std::string type) {
     else if (type == "gauss") {
         std::cout << "Creating gaussian blur filter..." << std::endl;
         filter = new GaussianBlur(type, size);
+    }
+    else if (type == "sharpen") {
+        std::cout << "Creating sharpening filter..." << std::endl;
+        filter = new Sharpen(type, size);
     }
     else {
         std::cout << "Filter type not known." << std::endl;

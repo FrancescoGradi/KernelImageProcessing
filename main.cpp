@@ -31,48 +31,25 @@ int main() {
 
     int n = 3;
     int m = 5;
+    int p = 5;
     auto* kf = new KernelFactory();
 
     Kernel* blur = kf->createKernel(n, "gauss");
-    Kernel* identity = kf->createKernel(m, "identity");
     std::cout << "Blur:" << std::endl;
     blur->getFilter();
+
+    Kernel* identity = kf->createKernel(m, "identity");
     std::cout << "Identity:" << std::endl;
     identity->getFilter();
 
+    Kernel* sharpen = kf->createKernel(p, "sharpen");
+    std::cout << "Sharpen:" << std::endl;
+    sharpen->getFilter();
+
     delete blur;
     delete identity;
+    delete sharpen;
 
     return 0;
 
-    /*auto identity = Kernel::getIdentity(n);
-
-    std::cout << "Kernel: " << std::endl;
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            std::cout << identity[i][j] << " ";
-        }
-        std::cout << " " << std::endl;
-    }
-
-    auto blur = Kernel::getGaussianBlur();
-
-    std::cout << "Blur: " << std::endl;
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            std::cout << blur[i][j] << " ";
-        }
-        std::cout << " " << std::endl;
-    }
-
-    auto sharpen = Kernel::getSharpen();
-
-    std::cout << "Sharpen: " << std::endl;
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
-            std::cout << sharpen[i][j] << " ";
-        }
-        std::cout << " " << std::endl;
-    }
-     */
 }

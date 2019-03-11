@@ -2,7 +2,7 @@
 // Created by federico on 10/03/19.
 //
 
-#include "Filters/Identity.h"
+#include "Identity.h"
 
 Identity::Identity(std::string type, int size) : Kernel(size, type) {
 

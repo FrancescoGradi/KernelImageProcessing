@@ -17,12 +17,17 @@ Kernel::Kernel(int size, std::string type) {
 
 }
 
-Image* Kernel::applyFiltering(Image* img, float** filter) {
+Image* Kernel::applyFiltering(Pixel** pixels, float** filter, int width, int height, int size) {
 
-    for (int i = 0; i < img->getWidth(); i++) {
-        for (int j = 0; j < img->getHeight(); j++) {
+    auto* newPixels = new float* [width];
+
+    for (int i = size/2; i < height; i++) {
+        newPixels[i] = new float[height];
+        for (int j = size/2; j < width; j++) {
             // si moltiplicano i valori dell'immagine per i valori del filtro e si calcola il nuovo valore, si inserisce
             // in una nuova immagine e si rende quella
+
+
         }
     }
 

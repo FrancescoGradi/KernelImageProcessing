@@ -25,7 +25,7 @@ public:
 
     float** getFilter();
 
-    static Image* applyFiltering(Image* img, float** filter); // sarò la funzione che fa il filtraggio
+    static Image* applyFiltering(Pixel** pixels, float** filter, int width, int height, int size); // sarà la funzione che fa il filtraggio
 
     // Altre matrici da utilizzare: blur, sharpen, sobel, edgeDetection, gaussian blur
 
