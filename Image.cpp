@@ -72,7 +72,7 @@ void Image::setPixels(Pixel **pixels) {
     Image::pixels;
 }
 
-void Image::loadImage(const std::string pathImage) {
+void Image::loadImage(std::string pathImage) {
 
     std::ifstream picture;
     char* tmp;

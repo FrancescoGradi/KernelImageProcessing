@@ -54,9 +54,9 @@ Image* Kernel::applyFiltering(Pixel** pixels, int width, int height, std::string
                 a++;
             }
 
-            newPixels[i][j].setR((char) sumR);
-            newPixels[i][j].setG((char) sumG);
-            newPixels[i][j].setB((char) sumB);
+            newPixels[i][j].setR(sumR);
+            newPixels[i][j].setG(sumG);
+            newPixels[i][j].setB(sumB);
 
             // Cerca ed eventualmente aggiorna gli estremi per la normalizzazione
 
@@ -82,15 +82,6 @@ Image* Kernel::applyFiltering(Pixel** pixels, int width, int height, std::string
             newPixels[i][j].setR((char) (newPixels[i][j].getR() - minR) * (255 / (maxR - minR)));
             newPixels[i][j].setG((char) (newPixels[i][j].getG() - minG) * (255 / (maxG - minG)));
             newPixels[i][j].setB((char) (newPixels[i][j].getB() - minB) * (255 / (maxB - minB)));
-
-        }
-    }
-
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
-            std::cout << newPixels[i][j].getR() << std::endl;
-            newPixels[i][j].getG();
-            newPixels[i][j].getB();
 
         }
     }
