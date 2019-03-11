@@ -7,6 +7,8 @@
 #include "Filters/GaussianBlur.h"
 #include "Filters/Identity.h"
 #include "Filters/Sharpen.h"
+#include "Filters/BoxBlur.h"
+#include "Filters/EdgeDetection.h"
 
 Kernel* KernelFactory::createKernel(int size, std::string type) {
 
@@ -23,6 +25,14 @@ Kernel* KernelFactory::createKernel(int size, std::string type) {
     else if (type == "sharpen") {
         std::cout << "Creating sharpening filter..." << std::endl;
         filter = new Sharpen(type, size);
+    }
+    else if (type == "box") {
+        std::cout << "Creating box blur filter..." << std::endl;
+        filter = new BoxBlur(type, size);
+    }
+    else if (type == "edges") {
+        std::cout << "Creating edge detector filter..." << std::endl;
+        filter = new EdgeDetection(type, size);
     }
     else {
         std::cout << "Filter type not known." << std::endl;

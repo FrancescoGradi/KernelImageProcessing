@@ -31,7 +31,6 @@ int main() {
 
     int n = 3;
     int m = 5;
-    int p = 5;
     auto* kf = new KernelFactory();
 
     Kernel* blur = kf->createKernel(n, "gauss");
@@ -42,13 +41,23 @@ int main() {
     std::cout << "Identity:" << std::endl;
     identity->getFilter();
 
-    Kernel* sharpen = kf->createKernel(p, "sharpen");
+    Kernel* sharpen = kf->createKernel(m, "sharpen");
     std::cout << "Sharpen:" << std::endl;
     sharpen->getFilter();
+
+    Kernel* boxBlur = kf->createKernel(m, "box");
+    std::cout << "Box Blur:" << std::endl;
+    boxBlur->getFilter();
+
+    Kernel* edges = kf->createKernel(m, "edges");
+    std::cout << "Edges detection:" << std::endl;
+    edges->getFilter();
 
     delete blur;
     delete identity;
     delete sharpen;
+    delete boxBlur;
+    delete edges;
 
     return 0;
 
