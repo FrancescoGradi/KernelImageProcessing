@@ -12,6 +12,7 @@ class Image {
 
 public:
     Image();
+    explicit Image(Pixel** pixels, int width, int height, int max, std::string magic);
     explicit Image(std::string pathImage);
     virtual ~Image();
 

@@ -10,6 +10,9 @@
 
 Image::Image(): width(0), height(0), channels(0), max(0), pixels(nullptr) {}
 
+Image::Image(Pixel **pixels, int width, int height, int max, std::string magic) : pixels(pixels), width(width),
+    height(height), max(max), magic(magic){}
+
 Image::Image(std::string pathImage) {
     // Costruttore che incapsula il caricamento dell'immagine
 

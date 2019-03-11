@@ -12,7 +12,7 @@ public:
         g = 0;
         b = 0;
     }
-    Pixel(char r, char g, char b):r(r), g(g), b(b) {}
+    explicit Pixel(char r, char g, char b):r(r), g(g), b(b) {}
     virtual ~Pixel() = default;
 
     char getR() const {

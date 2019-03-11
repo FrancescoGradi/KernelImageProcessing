@@ -11,12 +11,6 @@
 class Kernel {
 
 public:
-    // Dobbiamo trovare un modo semifurbo per gestire le differenti dimensioni delle matrici di kernel.
-    // Pensavo di chiamare un metodo statico che ti rendesse direttamente la matrice richiesta, magari
-    // avendo come argomento l'n delle dimensioni. Per ora si usano metodi statici che possono essere
-    // chiamati anche senza instanziare un oggetto, ma lo svantaggio e' che dobbiamo usare un delete una
-    // volta che la matrice non ci serve piu' (penso che in teoria in questi casi il distruttore non
-    // intervenga.)
 
     Kernel(int size, std::string type);
     virtual ~Kernel();
@@ -25,7 +19,7 @@ public:
 
     float** getFilter();
 
-    static Image* applyFiltering(Pixel** pixels, float** filter, int width, int height, int size); // sarà la funzione che fa il filtraggio
+    Image* applyFiltering(Pixel** pixels, int width, int height, std::string magic);
 
     // Altre matrici da utilizzare: blur, sharpen, sobel, edgeDetection, gaussian blur
 

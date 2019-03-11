@@ -17,25 +17,90 @@ Kernel::Kernel(int size, std::string type) {
 
 }
 
-Image* Kernel::applyFiltering(Pixel** pixels, float** filter, int width, int height, int size) {
+Image* Kernel::applyFiltering(Pixel** pixels, int width, int height, std::string magic) {
 
-    auto* newPixels = new float* [width];
+    // Dopo la convoluzione si riducono le dimensioni dell'immagine,
+    width -= (size/2) * 2;
+    height -= (size/2) * 2;
 
-    for (int i = size/2; i < height; i++) {
-        newPixels[i] = new float[height];
-        for (int j = size/2; j < width; j++) {
-            // si moltiplicano i valori dell'immagine per i valori del filtro e si calcola il nuovo valore, si inserisce
-            // in una nuova immagine e si rende quella
+    float sumR, sumG, sumB;
+    double minR, minG, minB = 1.0/0.0;
+    double maxR, maxG, maxB = -1.0/0.0;
+    int a, b;
 
+    auto* newPixels = new Pixel*[height];
+
+    for (int i = 0; i < height; i++) {
+        newPixels[i] = new Pixel[width];
+
+        for (int j = 0; j < width; j++) {
+
+            sumR = 0;
+            sumG = 0;
+            sumB = 0;
+
+            a = 0;
+
+            for (int k = i; k < i + size; k++) {
+                b = 0;
+
+                for (int l = j; l < j + size; l++) {
+                    sumR += filter[a][b] * (int) (unsigned char) pixels[k][l].getR();
+                    sumG += filter[a][b] * (int) (unsigned char) pixels[k][l].getG();
+                    sumB += filter[a][b] * (int) (unsigned char) pixels[k][l].getB();
+
+                    b++;
+                }
+                a++;
+            }
+
+            newPixels[i][j].setR((char) sumR);
+            newPixels[i][j].setG((char) sumG);
+            newPixels[i][j].setB((char) sumB);
+
+            // Cerca ed eventualmente aggiorna gli estremi per la normalizzazione
+
+            if (sumR > maxR)
+                maxR = sumR;
+            if (sumR < minR)
+                minR = sumR;
+
+            if (sumG > maxG)
+                maxG = sumG;
+            if (sumG < minG)
+                minG = sumG;
+
+            if (sumB > maxB)
+                maxB = sumB;
+            if (sumB < minB)
+                minB = sumB;
+        }
+    }
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            newPixels[i][j].setR((char) (newPixels[i][j].getR() - minR) * (255 / (maxR - minR)));
+            newPixels[i][j].setG((char) (newPixels[i][j].getG() - minG) * (255 / (maxG - minG)));
+            newPixels[i][j].setB((char) (newPixels[i][j].getB() - minB) * (255 / (maxB - minB)));
 
         }
     }
+
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            std::cout << newPixels[i][j].getR() << std::endl;
+            newPixels[i][j].getG();
+            newPixels[i][j].getB();
+
+        }
+    }
+
+    return new Image(newPixels, width, height, 255, magic);
 
 }
 
 // TODO: trovare il modo di evitare il segmentation fault che si ha quando il filtro non esiste
 float** Kernel::getFilter() {
-
 
     if (this->filter != nullptr) {
         for (int i = 0; i < size; i++) {
