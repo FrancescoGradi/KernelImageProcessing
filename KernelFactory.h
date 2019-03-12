@@ -8,11 +8,14 @@
 
 #include "Kernel.h"
 
+#include <vector>
+
 class KernelFactory {
 
 public:
 
     Kernel* createKernel(int size, std::string type);
+    std::vector<Kernel*> createAllKernels(int size);
 
 };
 

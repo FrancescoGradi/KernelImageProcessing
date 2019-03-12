@@ -41,3 +41,16 @@ Kernel* KernelFactory::createKernel(int size, std::string type) {
     return filter;
 
 }
+
+std::vector<Kernel *> KernelFactory::createAllKernels(int size) {
+
+    std::vector<Kernel *> kernels;
+
+    kernels.push_back(new Identity("identity", size));
+    kernels.push_back(new GaussianBlur("blur", size));
+    kernels.push_back(new Sharpen("sharpen", size));
+    kernels.push_back(new BoxBlur("boxBlur", size));
+    kernels.push_back(new EdgeDetection("edge", size));
+
+    return kernels;
+}
