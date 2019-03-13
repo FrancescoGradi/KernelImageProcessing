@@ -24,8 +24,8 @@ Image* Kernel::applyFiltering(Pixel** pixels, int width, int height, std::string
     height -= (size/2) * 2;
 
     float sumR, sumG, sumB;
-    double minR, minG, minB = 1.0/0.0;
-    double maxR, maxG, maxB = -1.0/0.0;
+    double minR = 0, minG = 0, minB = 0;
+    double maxR = 255, maxG = 255, maxB = 255;
     int a, b;
 
     auto* newPixels = new Pixel*[height];
@@ -54,9 +54,9 @@ Image* Kernel::applyFiltering(Pixel** pixels, int width, int height, std::string
                 a++;
             }
 
-            newPixels[i][j].setR((char) sumR);
-            newPixels[i][j].setG((char) sumG);
-            newPixels[i][j].setB((char) sumB);
+            newPixels[i][j].setR(sumR);
+            newPixels[i][j].setG(sumG);
+            newPixels[i][j].setB(sumB);
 
             // Cerca ed eventualmente aggiorna gli estremi per la normalizzazione
 
@@ -76,22 +76,18 @@ Image* Kernel::applyFiltering(Pixel** pixels, int width, int height, std::string
                 minB = sumB;
         }
     }
-    /*
+
     if (type == "sharpen" || type == "edge") {
 
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
 
-                std::cout << ((float) (unsigned char) newPixels[i][j].getR() - minR) * (255 / (maxR - minR)) << std::endl;
-
-
-                newPixels[i][j].setR((char) ((float) (unsigned char) newPixels[i][j].getR() - minR) * (255 / (maxR - minR)));
-                newPixels[i][j].setG((char) ((float) (unsigned char) newPixels[i][j].getG() - minG) * (255 / (maxG - minG)));
-                newPixels[i][j].setB((char) ((float) (unsigned char) newPixels[i][j].getB() - minB) * (255 / (maxB - minB)));
+                newPixels[i][j].setR((newPixels[i][j].getR() - minR) * (255 / (maxR - minR)));
+                newPixels[i][j].setG((newPixels[i][j].getG() - minG) * (255 / (maxG - minG)));
+                newPixels[i][j].setB((newPixels[i][j].getB() - minB) * (255 / (maxB - minB)));
             }
         }
     }
-    */
 
     return new Image(newPixels, width, height, 255, magic);
 
