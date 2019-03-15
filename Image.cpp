@@ -155,8 +155,6 @@ void Image::storeImage(std::string pathDest) {
 
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            // Risalvando l'immagine torna con questi offset scambiati, per qualche motivo... (cosi' pero' dovrebbe
-            // funzionare correttamente almeno...)
 
             tmp[3*i*width + 3*j + 2] = pixels[i][j].getR();
             tmp[3*i*width + 3*j + 0] = pixels[i][j].getG();

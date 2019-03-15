@@ -17,7 +17,7 @@ int main() {
     start = std::clock();
     double duration;
 
-    Image* img = new Image("../images/computer_programming.ppm");
+    Image* img = new Image("../images/marbles.ppm");
 
     int n = 3;
 
