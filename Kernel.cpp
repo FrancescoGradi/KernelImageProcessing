@@ -24,8 +24,6 @@ Image* Kernel::applyFiltering(Pixel** pixels, int width, int height, std::string
     height -= (size/2) * 2;
 
     float sumR, sumG, sumB;
-    double minR = 0, minG = 0, minB = 0;
-    double maxR = 255, maxG = 255, maxB = 255;
     int a, b;
 
     auto* newPixels = new Pixel*[height];
@@ -54,38 +52,24 @@ Image* Kernel::applyFiltering(Pixel** pixels, int width, int height, std::string
                 a++;
             }
 
-            newPixels[i][j].setR(sumR);
-            newPixels[i][j].setG(sumG);
-            newPixels[i][j].setB(sumB);
+            if (sumR < 0)
+                sumR = 0;
+            if (sumR > 255)
+                sumR = 255;
 
-            // Cerca ed eventualmente aggiorna gli estremi per la normalizzazione
+            if (sumG < 0)
+                sumG = 0;
+            if (sumG > 255)
+                sumG = 255;
 
-            if (sumR > maxR)
-                maxR = sumR;
-            if (sumR < minR)
-                minR = sumR;
+            if (sumB < 0)
+                sumB = 0;
+            if (sumB > 255)
+                sumB = 255;
 
-            if (sumG > maxG)
-                maxG = sumG;
-            if (sumG < minG)
-                minG = sumG;
-
-            if (sumB > maxB)
-                maxB = sumB;
-            if (sumB < minB)
-                minB = sumB;
-        }
-    }
-
-    if (type == "sharpen" || type == "edge") {
-
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-
-                newPixels[i][j].setR((newPixels[i][j].getR() - minR) * (255 / (maxR - minR)));
-                newPixels[i][j].setG((newPixels[i][j].getG() - minG) * (255 / (maxG - minG)));
-                newPixels[i][j].setB((newPixels[i][j].getB() - minB) * (255 / (maxB - minB)));
-            }
+            newPixels[i][j].setR((char) sumR);
+            newPixels[i][j].setG((char) sumG);
+            newPixels[i][j].setB((char) sumB);
         }
     }
 
@@ -112,11 +96,13 @@ float** Kernel::getFilter() {
 
 Kernel::~Kernel() {
 
-    for (int i = 0; i < size; i++) {
-        delete [] filter[i];
-    }
+    if (filter != nullptr) {
+        for (int i = 0; i < size; i++) {
+            delete [] filter[i];
+        }
 
-    delete [] filter;
+        delete [] filter;
+    }
 }
 
 std::string Kernel::getType() {
