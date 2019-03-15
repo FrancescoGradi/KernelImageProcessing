@@ -11,7 +11,7 @@
 class EdgeDetection: public Kernel {
 
 public:
-    EdgeDetection(std::string type, int size);
+    explicit EdgeDetection(std::string type);
 
 };
 

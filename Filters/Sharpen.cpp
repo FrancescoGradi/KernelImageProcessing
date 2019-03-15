@@ -4,16 +4,16 @@
 
 #include "Sharpen.h"
 
-Sharpen::Sharpen(std::string type, int size) : Kernel(size, type) {
+Sharpen::Sharpen(std::string type) : Kernel(type) {
 
-    for (int i = 0; i < size; i++) {
-        this->filter[i] = new float[size];
+    for (int i = 0; i < this->size; i++) {
+        this->filter[i] = new float[this->size];
 
-        for (int j = 0; j < size; j++) {
-            if ((i == (size / 2)) && (j == (size / 2))) {
+        for (int j = 0; j < this->size; j++) {
+            if ((i == (this->size / 2)) && (j == (this->size / 2))) {
                 this->filter[i][j] = 5;
             }
-            else if (((i == size/2) || (j == size/2)) && (i != j)) {
+            else if (((i == this->size/2) || (j == this->size/2)) && (i != j)) {
                 this->filter[i][j] = -1;
             }
             else {

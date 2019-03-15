@@ -9,6 +9,13 @@
 
 // Restituisce il kernel piu' semplice, che non modifica l'immagine. Ha un 1 nel mezzo.
 
+Kernel::Kernel(std::string type) {
+
+    this->size = 3;
+    this->filter = new float*[this->size];
+    this->type = type;
+
+}
 Kernel::Kernel(int size, std::string type) {
 
     this->filter = new float*[size];

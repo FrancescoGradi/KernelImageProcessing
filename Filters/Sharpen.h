@@ -11,7 +11,7 @@
 class Sharpen: public Kernel {
 
 public:
-    Sharpen(std::string type, int size);
+    explicit Sharpen(std::string type);
 
 };
 

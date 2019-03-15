@@ -6,8 +6,16 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <cstdio>
+#include <ctime>
 
 int main() {
+
+    std::cout << "Starting clock..." << std::endl;
+    std::clock_t start;
+
+    start = std::clock();
+    double duration;
 
     Image* img = new Image("../images/computer_programming.ppm");
 
@@ -31,6 +39,10 @@ int main() {
     }
 
     kernels.clear();
+
+    duration = (std::clock() - start) / double CLOCKS_PER_SEC;
+
+    std::cout << "Computation ended after " << duration << " seconds." << std::endl;
 
     return 0;
 

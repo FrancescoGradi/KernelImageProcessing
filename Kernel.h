@@ -12,6 +12,7 @@ class Kernel {
 
 public:
 
+    explicit Kernel(std::string type);
     Kernel(int size, std::string type);
     virtual ~Kernel();
 
@@ -21,13 +22,11 @@ public:
 
     Image* applyFiltering(Pixel** pixels, int width, int height, std::string magic);
 
-    // Altre matrici da utilizzare: blur, sharpen, sobel, edgeDetection, gaussian blur
-
 protected:
     float** filter;
+    int size;
 
 private:
-    int size;
     std::string type;
 
 };

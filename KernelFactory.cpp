@@ -24,7 +24,7 @@ Kernel* KernelFactory::createKernel(int size, std::string type) {
     }
     else if (type == "sharpen") {
         std::cout << "Creating sharpening filter..." << std::endl;
-        filter = new Sharpen(type, size);
+        filter = new Sharpen(type);
     }
     else if (type == "box") {
         std::cout << "Creating box blur filter..." << std::endl;
@@ -32,7 +32,7 @@ Kernel* KernelFactory::createKernel(int size, std::string type) {
     }
     else if (type == "edges") {
         std::cout << "Creating edge detector filter..." << std::endl;
-        filter = new EdgeDetection(type, size);
+        filter = new EdgeDetection(type);
     }
     else {
         std::cout << "Filter type not known." << std::endl;
@@ -48,9 +48,9 @@ std::vector<Kernel *> KernelFactory::createAllKernels(int size) {
 
     kernels.push_back(new Identity("identity", size));
     kernels.push_back(new GaussianBlur("blur", size));
-    kernels.push_back(new Sharpen("sharpen", size));
+    kernels.push_back(new Sharpen("sharpen"));
     kernels.push_back(new BoxBlur("boxBlur", size));
-    kernels.push_back(new EdgeDetection("edge", size));
+    kernels.push_back(new EdgeDetection("edge"));
 
     return kernels;
 }
