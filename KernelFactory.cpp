@@ -47,10 +47,10 @@ std::vector<Kernel *> KernelFactory::createAllKernels(int size) {
     std::vector<Kernel *> kernels;
 
     kernels.push_back(new Identity("identity", size));
-    kernels.push_back(new GaussianBlur("blur", size));
-    kernels.push_back(new Sharpen("sharpen"));
-    kernels.push_back(new BoxBlur("boxBlur", size));
-    kernels.push_back(new EdgeDetection("edge"));
+    //kernels.push_back(new GaussianBlur("blur", size));
+    //kernels.push_back(new Sharpen("sharpen"));
+    //kernels.push_back(new BoxBlur("boxBlur", size));
+    //kernels.push_back(new EdgeDetection("edge"));
 
     return kernels;
 }

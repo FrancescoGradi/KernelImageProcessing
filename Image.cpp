@@ -8,9 +8,9 @@
 #include <iostream>
 #include <fstream>
 
-Image::Image(): width(0), height(0), channels(0), max(0), pixels(nullptr) {}
+Image::Image(): width(0), height(0), max(0), pixels(nullptr) {}
 
-Image::Image(Pixel **pixels, int width, int height, int max, std::string magic) : pixels(pixels), width(width),
+Image::Image(Pixel *pixels, int width, int height, int max, std::string magic) : pixels(pixels), width(width),
     height(height), max(max), magic(magic){}
 
 Image::Image(std::string pathImage) {
@@ -21,15 +21,8 @@ Image::Image(std::string pathImage) {
 
 Image::~Image() {
 
-    if (pixels != nullptr) {
-
-        for(int i = 0; i < width; i++) {
-            delete [] pixels[i];
-        }
-
+    if (pixels != nullptr)
         delete [] pixels;
-    }
-
 }
 
 int Image::getWidth() const {
@@ -48,14 +41,6 @@ void Image::setHeight(int height) {
     Image::height = height;
 }
 
-int Image::getChannels() const {
-    return channels;
-}
-
-void Image::setChannels(int channels) {
-    Image::channels = channels;
-}
-
 std::string Image::getMagic() const {
     return magic;
 }
@@ -64,11 +49,11 @@ void Image::setMagic(std::string magic) {
     Image::magic = magic;
 }
 
-Pixel **Image::getPixels() const {
+Pixel *Image::getPixels() const {
     return pixels;
 }
 
-void Image::setPixels(Pixel **pixels) {
+void Image::setPixels(Pixel *pixels) {
     Image::pixels;
 }
 
@@ -95,18 +80,14 @@ void Image::loadImage(std::string pathImage) {
     // Ho ripreso il codice di loro che prevedeva dei char per leggere i byte
     picture.read(tmp, size);
 
-    pixels = new Pixel*[height];
+    pixels = new Pixel[height * width];
 
     std::string byteRead = "";
     for(int i = 0; i < height; i++) {
-        pixels[i] = new Pixel[width];
-
         for(int j = 0; j < width; j++) {
-
-            pixels[i][j].setR(tmp[3*i*width + 3*j + 0]);
-            pixels[i][j].setG(tmp[3*i*width + 3*j + 1]);
-            pixels[i][j].setB(tmp[3*i*width + 3*j + 2]);
-
+            pixels[i*width + j].setR(tmp[3*i*width + 3*j + 0]);
+            pixels[i*width + j].setG(tmp[3*i*width + 3*j + 1]);
+            pixels[i*width + j].setB(tmp[3*i*width + 3*j + 2]);
         }
     }
 
@@ -156,9 +137,9 @@ void Image::storeImage(std::string pathDest) {
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
 
-            tmp[3*i*width + 3*j + 2] = pixels[i][j].getR();
-            tmp[3*i*width + 3*j + 0] = pixels[i][j].getG();
-            tmp[3*i*width + 3*j + 1] = pixels[i][j].getB();
+            tmp[3*i*width + 3*j + 2] = pixels[i*width + j].getR();
+            tmp[3*i*width + 3*j + 0] = pixels[i*width + j].getG();
+            tmp[3*i*width + 3*j + 1] = pixels[i*width + j].getB();
         }
     }
 

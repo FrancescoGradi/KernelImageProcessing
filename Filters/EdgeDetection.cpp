@@ -7,7 +7,7 @@
 // I valori per i filtri li ho trovati sulla pagina di wikipedia linkata nella guida del prof
 
 EdgeDetection::EdgeDetection(std::string type) : Kernel(type) {
-
+    /*
     for (int i = 0; i < this->size; i++) {
         this->filter[i] = new float[this->size];
 
@@ -19,5 +19,5 @@ EdgeDetection::EdgeDetection(std::string type) : Kernel(type) {
             }
         }
     }
-
+    */
 }

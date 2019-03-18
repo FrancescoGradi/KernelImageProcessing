@@ -18,12 +18,12 @@ public:
 
     std::string getType();
 
-    float** getFilter();
+    float* getFilter();
 
-    Image* applyFiltering(Pixel** pixels, int width, int height, std::string magic);
+    Image* applyFiltering(Pixel* pixels, int width, int height, std::string magic);
 
 protected:
-    float** filter;
+    float* filter;
     int size;
 
 private:

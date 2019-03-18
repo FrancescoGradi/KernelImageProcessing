@@ -17,12 +17,14 @@ int main() {
     start = std::clock();
     double duration;
 
-    Image* img = new Image("../images/marbles.ppm");
+    Image* img = new Image("../images/computer_programming.ppm");
 
     int n = 3;
 
     auto* kf = new KernelFactory();
 
+    // TODO aggiornare i filtri con matrice unidimensionale. Per quanto riguarda i new sembrerebbe che a CUDA vadano
+    //  bene, in ogni caso e' veloce mettere malloc al posto dei new
     std::vector<Kernel *> kernels = kf->createAllKernels(n);
 
     for (auto &kernel : kernels) {

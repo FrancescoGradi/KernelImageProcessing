@@ -6,7 +6,7 @@
 #include <math.h>
 
 GaussianBlur::GaussianBlur(std::string type, int size) : Kernel(size, type) {
-
+    /*
     // Double perché l'exp ritorna un double, dava problemi
     double sigma = 1;
     double mean = size/2;
@@ -30,5 +30,5 @@ GaussianBlur::GaussianBlur(std::string type, int size) : Kernel(size, type) {
             this->filter[x][y] /= sum;
         }
     }
-
+    */
 }

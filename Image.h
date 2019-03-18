@@ -12,7 +12,7 @@ class Image {
 
 public:
     Image();
-    explicit Image(Pixel** pixels, int width, int height, int max, std::string magic);
+    explicit Image(Pixel* pixels, int width, int height, int max, std::string magic);
     explicit Image(std::string pathImage);
     virtual ~Image();
 
@@ -30,25 +30,20 @@ public:
 
     void setHeight(int height);
 
-    int getChannels() const;
-
-    void setChannels(int channels);
-
     std::string getMagic() const;
 
     void setMagic(std::string magic);
 
-    Pixel **getPixels() const;
+    Pixel *getPixels() const;
 
-    void setPixels(Pixel **pixels);
+    void setPixels(Pixel *pixels);
 
 private:
     int width;
     int height;
-    int channels;
     int max;
     std::string magic;
-    Pixel** pixels;
+    Pixel* pixels;
 };
 
 

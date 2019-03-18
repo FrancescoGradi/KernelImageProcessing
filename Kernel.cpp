@@ -2,29 +2,28 @@
 // Created by fra on 09/03/19.
 //
 
-#include <iostream>
 #include "Kernel.h"
 #include "Pixel.h"
 #include "Image.h"
 
-// Restituisce il kernel piu' semplice, che non modifica l'immagine. Ha un 1 nel mezzo.
+#include <cmath>
 
 Kernel::Kernel(std::string type) {
 
     this->size = 3;
-    this->filter = new float*[this->size];
+    this->filter = new float[size * size];
     this->type = type;
 
 }
 Kernel::Kernel(int size, std::string type) {
 
-    this->filter = new float*[size];
+    this->filter = new float[size * size];
     this->size = size;
     this->type = type;
 
 }
 
-Image* Kernel::applyFiltering(Pixel** pixels, int width, int height, std::string magic) {
+Image* Kernel::applyFiltering(Pixel* pixels, int width, int height, std::string magic) {
 
     // Dopo la convoluzione si riducono le dimensioni dell'immagine,
     width -= (size/2) * 2;
@@ -33,11 +32,9 @@ Image* Kernel::applyFiltering(Pixel** pixels, int width, int height, std::string
     float sumR, sumG, sumB;
     int a, b;
 
-    auto* newPixels = new Pixel*[height];
+    auto* newPixels = new Pixel[height * width];
 
     for (int i = 0; i < height; i++) {
-        newPixels[i] = new Pixel[width];
-
         for (int j = 0; j < width; j++) {
 
             sumR = 0;
@@ -50,9 +47,11 @@ Image* Kernel::applyFiltering(Pixel** pixels, int width, int height, std::string
                 b = 0;
 
                 for (int l = j; l < j + size; l++) {
-                    sumR += filter[a][b] * (int) (unsigned char) pixels[k][l].getR();
-                    sumG += filter[a][b] * (int) (unsigned char) pixels[k][l].getG();
-                    sumB += filter[a][b] * (int) (unsigned char) pixels[k][l].getB();
+
+                    // TODO sembrerebbe che l'errore sia negli indici su k e l qua...
+                    sumR += filter[a*size + b] * (int) (unsigned char) pixels[k*width + l].getR();
+                    sumG += filter[a*size + b] * (int) (unsigned char) pixels[k*width + l].getG();
+                    sumB += filter[a*size + b] * (int) (unsigned char) pixels[k*width + l].getB();
 
                     b++;
                 }
@@ -74,9 +73,9 @@ Image* Kernel::applyFiltering(Pixel** pixels, int width, int height, std::string
             if (sumB > 255)
                 sumB = 255;
 
-            newPixels[i][j].setR((char) sumR);
-            newPixels[i][j].setG((char) sumG);
-            newPixels[i][j].setB((char) sumB);
+            newPixels[i*width + j].setR((char) sumR);
+            newPixels[i*width + j].setG((char) sumG);
+            newPixels[i*width + j].setB((char) sumB);
         }
     }
 
@@ -84,32 +83,18 @@ Image* Kernel::applyFiltering(Pixel** pixels, int width, int height, std::string
 
 }
 
-// TODO: trovare il modo di evitare il segmentation fault che si ha quando il filtro non esiste
-float** Kernel::getFilter() {
+float* Kernel::getFilter() {
 
-    if (this->filter != nullptr) {
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                std::cout << this->filter[i][j] << " ";
-            }
-            std::cout << "" << std::endl;
-        }
+    if (this->filter != nullptr)
         return this->filter;
-    }
-    else {
+    else
         return nullptr;
-    }
 }
 
 Kernel::~Kernel() {
 
-    if (filter != nullptr) {
-        for (int i = 0; i < size; i++) {
-            delete [] filter[i];
-        }
-
+    if (filter != nullptr)
         delete [] filter;
-    }
 }
 
 std::string Kernel::getType() {

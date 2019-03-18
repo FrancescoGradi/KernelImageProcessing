@@ -5,7 +5,7 @@
 #include "Sharpen.h"
 
 Sharpen::Sharpen(std::string type) : Kernel(type) {
-
+    /*
     for (int i = 0; i < this->size; i++) {
         this->filter[i] = new float[this->size];
 
@@ -21,5 +21,5 @@ Sharpen::Sharpen(std::string type) : Kernel(type) {
             }
         }
     }
-
+    */
 }
