@@ -19,7 +19,7 @@ int main() {
 
     Image* img = new Image("../images/computer_programming.ppm");
 
-    int n = 3;
+    int n = 5;
 
     auto* kf = new KernelFactory();
 
@@ -42,7 +42,7 @@ int main() {
 
     kernels.clear();
 
-    duration = (std::clock() - start) / double CLOCKS_PER_SEC;
+    duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
 
     std::cout << "Computation ended after " << duration << " seconds." << std::endl;
 

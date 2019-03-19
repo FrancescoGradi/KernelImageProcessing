@@ -26,6 +26,8 @@ Kernel::Kernel(int size, std::string type) {
 Image* Kernel::applyFiltering(Pixel* pixels, int width, int height, std::string magic) {
 
     // Dopo la convoluzione si riducono le dimensioni dell'immagine,
+    int oldWidth = width;
+
     width -= (size/2) * 2;
     height -= (size/2) * 2;
 
@@ -47,11 +49,9 @@ Image* Kernel::applyFiltering(Pixel* pixels, int width, int height, std::string 
                 b = 0;
 
                 for (int l = j; l < j + size; l++) {
-
-                    // TODO sembrerebbe che l'errore sia negli indici su k e l qua...
-                    sumR += filter[a*size + b] * (int) (unsigned char) pixels[k*width + l].getR();
-                    sumG += filter[a*size + b] * (int) (unsigned char) pixels[k*width + l].getG();
-                    sumB += filter[a*size + b] * (int) (unsigned char) pixels[k*width + l].getB();
+                    sumR += filter[a*size + b] * (int) (unsigned char) pixels[k*oldWidth + l].getR();
+                    sumG += filter[a*size + b] * (int) (unsigned char) pixels[k*oldWidth + l].getG();
+                    sumB += filter[a*size + b] * (int) (unsigned char) pixels[k*oldWidth + l].getB();
 
                     b++;
                 }
