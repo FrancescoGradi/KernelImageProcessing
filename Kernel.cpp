@@ -49,9 +49,9 @@ Image* Kernel::applyFiltering(Pixel* pixels, int width, int height, std::string 
                 b = 0;
 
                 for (int l = j; l < j + size; l++) {
-                    sumR += filter[a*size + b] * (int) (unsigned char) pixels[k*oldWidth + l].getR();
-                    sumG += filter[a*size + b] * (int) (unsigned char) pixels[k*oldWidth + l].getG();
-                    sumB += filter[a*size + b] * (int) (unsigned char) pixels[k*oldWidth + l].getB();
+                    sumR += filter[a*size + b] * (int) (unsigned char) pixels[k*oldWidth + l].r;
+                    sumG += filter[a*size + b] * (int) (unsigned char) pixels[k*oldWidth + l].g;
+                    sumB += filter[a*size + b] * (int) (unsigned char) pixels[k*oldWidth + l].b;
 
                     b++;
                 }
@@ -73,9 +73,9 @@ Image* Kernel::applyFiltering(Pixel* pixels, int width, int height, std::string 
             if (sumB > 255)
                 sumB = 255;
 
-            newPixels[i*width + j].setR((char) sumR);
-            newPixels[i*width + j].setG((char) sumG);
-            newPixels[i*width + j].setB((char) sumB);
+            newPixels[i*width + j].r = ((char) sumR);
+            newPixels[i*width + j].g = ((char) sumG);
+            newPixels[i*width + j].b = ((char) sumB);
         }
     }
 

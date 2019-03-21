@@ -85,9 +85,9 @@ void Image::loadImage(std::string pathImage) {
     std::string byteRead = "";
     for(int i = 0; i < height; i++) {
         for(int j = 0; j < width; j++) {
-            pixels[i*width + j].setR(tmp[3*i*width + 3*j + 0]);
-            pixels[i*width + j].setG(tmp[3*i*width + 3*j + 1]);
-            pixels[i*width + j].setB(tmp[3*i*width + 3*j + 2]);
+            pixels[i*width + j].r = tmp[3*i*width + 3*j + 0];
+            pixels[i*width + j].g = tmp[3*i*width + 3*j + 1];
+            pixels[i*width + j].b = tmp[3*i*width + 3*j + 2];
         }
     }
 
@@ -137,9 +137,9 @@ void Image::storeImage(std::string pathDest) {
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
 
-            tmp[3*i*width + 3*j + 2] = pixels[i*width + j].getR();
-            tmp[3*i*width + 3*j + 0] = pixels[i*width + j].getG();
-            tmp[3*i*width + 3*j + 1] = pixels[i*width + j].getB();
+            tmp[3*i*width + 3*j + 2] = pixels[i*width + j].r;
+            tmp[3*i*width + 3*j + 0] = pixels[i*width + j].g;
+            tmp[3*i*width + 3*j + 1] = pixels[i*width + j].b;
         }
     }
 

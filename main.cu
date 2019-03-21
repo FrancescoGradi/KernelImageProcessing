@@ -46,9 +46,9 @@ __global__ void naiveFiltering(Pixel* pixelsDevice, float* kernelDevice, Pixel* 
 			b = 0;
 
 			for (int l = col; l < col + n; l++) {
-				sumR += kernelDevice[a*n + b] * (int) (unsigned char) pixelsDevice[k*width + l].getR();
-				sumG += kernelDevice[a*n + b] * (int) (unsigned char) pixelsDevice[k*width + l].getG();
-				sumB += kernelDevice[a*n + b] * (int) (unsigned char) pixelsDevice[k*width + l].getB();
+				sumR += kernelDevice[a*n + b] * (int) (unsigned char) pixelsDevice[k*width + l].r;
+				sumG += kernelDevice[a*n + b] * (int) (unsigned char) pixelsDevice[k*width + l].g;
+				sumB += kernelDevice[a*n + b] * (int) (unsigned char) pixelsDevice[k*width + l].b;
 
 				b++;
 			}
@@ -70,16 +70,16 @@ __global__ void naiveFiltering(Pixel* pixelsDevice, float* kernelDevice, Pixel* 
 		if (sumB > 255)
 			sumB = 255;
 
-		resultDevice[row*widthResult + col].setR((char) sumR);
-		resultDevice[row*widthResult + col].setG((char) sumG);
-		resultDevice[row*widthResult + col].setB((char) sumB);
+		resultDevice[row*widthResult + col].r = ((char) sumR);
+		resultDevice[row*widthResult + col].g = ((char) sumG);
+		resultDevice[row*widthResult + col].b = ((char) sumB);
 	}
 }
 
 int main() {
 
 	// Parte sequenziale completa
-
+	/*
     std::cout << "Starting clock..." << std::endl;
     std::clock_t start;
 
@@ -88,7 +88,7 @@ int main() {
 
     Image* img = new Image("images/computer_programming.ppm");
 
-    int n = 5;
+    int n = 3;
 
     auto* kf = new KernelFactory();
 
@@ -114,7 +114,13 @@ int main() {
     duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
 
     std::cout << "Computation ended after " << duration << " seconds." << std::endl;
-    /*
+    */
+
+	std::cout << "Starting clock..." << std::endl;
+	std::clock_t start;
+
+	start = std::clock();
+	double duration;
 
 	int n = 5;
 	Image* img = new Image("images/computer_programming.ppm");
@@ -145,14 +151,20 @@ int main() {
 	CUDA_CHECK_RETURN(cudaMemcpy(pixelsDevice, pixels, width * height * sizeof(Pixel), cudaMemcpyHostToDevice));
 	CUDA_CHECK_RETURN(cudaMemcpy(identityDevice, identity, n * n * sizeof(float), cudaMemcpyHostToDevice));
 
-	dim3 blockDim = (n, n);
-	dim3 gridDim = (widthResult, heightResult);
+	dim3 gridDim = (n, n);
+	dim3 blockDim = (widthResult, heightResult);
 
 	// Invocazione del kernel
-	naiveFiltering<<<gridDim, blockDim>>>(pixelsDevice, identityDevice, resultDevice, width, height,
+	naiveFiltering<<<blockDim, gridDim>>>(pixelsDevice, identityDevice, resultDevice, width, height,
 			n, widthResult, heightResult);
 
 	cudaDeviceSynchronize();
+
+	CUDA_CHECK_RETURN(cudaMemcpy(result, resultDevice, sizeof(Pixel) * widthResult * heightResult,
+			cudaMemcpyDeviceToHost));
+
+	Image* newImage = new Image(result, widthResult, heightResult, 255, img->getMagic());
+	newImage->storeImage("images/cudaIdentity.ppm");
 
 	cudaFree(pixelsDevice);
 	cudaFree(identityDevice);
@@ -160,9 +172,10 @@ int main() {
 
 	delete [] pixels;
 	delete [] identity;
-	delete [] result;
-	*/
+
+	duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
+
+	std::cout << "Computation ended after " << duration << " seconds." << std::endl;
 
     return 0;
-
 }
