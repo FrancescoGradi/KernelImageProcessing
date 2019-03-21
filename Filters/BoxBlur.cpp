@@ -15,5 +15,10 @@ BoxBlur::BoxBlur(std::string type, int size) : Kernel(size, type){
             this->filter[i][j] = 1.0 / pow(size, 2.0);
         }
     }
-`   */
+    */
+    for (int i = 0; i < size; i++) {
+        for (int j = 0; j < size; j++) {
+            this->filter[i * size + j] = 1.0 / pow(size, 2.0);
+        }
+    }
 }

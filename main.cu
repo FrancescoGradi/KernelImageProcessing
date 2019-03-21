@@ -123,14 +123,15 @@ int main() {
 	double duration;
 
 	int n = 5;
-	Image* img = new Image("images/computer_programming.ppm");
+	Image* img = new Image("../images/computer_programming.ppm");
 
 	Pixel* pixels = img->getPixels();
 	int width = img->getWidth();
 	int height = img->getHeight();
 
+	std::string filterName = "identity";
 	auto* kf = new KernelFactory();
-	Kernel* kernel = kf->createKernel(n, "identity");
+	Kernel* kernel = kf->createKernel(n, filterName);
 
 	float* identity = kernel->getFilter();
 
@@ -143,7 +144,7 @@ int main() {
 	float* identityDevice;
 	Pixel* resultDevice;
 
-	CUDA_CHECK_RETURN(cudaMalloc((void ** )&pixelsDevice, sizeof(Pixel) * width * height));
+	CUDA_CHECK_RETURN(cudaMalloc((void **)&pixelsDevice, sizeof(Pixel) * width * height));
 	CUDA_CHECK_RETURN(cudaMalloc((void **)&identityDevice, sizeof(float) * n * n));
 	CUDA_CHECK_RETURN(cudaMalloc((void **)&resultDevice, sizeof(Pixel) * widthResult * heightResult));
 
@@ -164,7 +165,7 @@ int main() {
 			cudaMemcpyDeviceToHost));
 
 	Image* newImage = new Image(result, widthResult, heightResult, 255, img->getMagic());
-	newImage->storeImage("images/cudaIdentity.ppm");
+	newImage->storeImage("../images/cuda_" + filterName + ".ppm");
 
 	cudaFree(pixelsDevice);
 	cudaFree(identityDevice);

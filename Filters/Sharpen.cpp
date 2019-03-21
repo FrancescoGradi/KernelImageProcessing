@@ -22,4 +22,17 @@ Sharpen::Sharpen(std::string type) : Kernel(type) {
         }
     }
     */
+    for (int i = 0; i < this->size; i++) {
+        for (int j = 0; j < this->size; j++) {
+            if ((i == (this->size / 2)) && (j == (this->size / 2))) {
+                this->filter[i * size + j] = 5;
+            }
+            else if (((i == this->size/2) || (j == this->size/2)) && (i != j)) {
+                this->filter[i * size + j] = -1;
+            }
+            else {
+                this->filter[i * size + j] = 0;
+            }
+        }
+    }
 }
