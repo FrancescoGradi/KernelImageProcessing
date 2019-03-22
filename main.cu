@@ -9,14 +9,9 @@
 #include <cstdio>
 #include <ctime>
 
-static void CheckCudaErrorAux(const char *, unsigned, const char *,
-		cudaError_t);
+static void CheckCudaErrorAux(const char *, unsigned, const char *, cudaError_t);
 #define CUDA_CHECK_RETURN(value) CheckCudaErrorAux(__FILE__,__LINE__, #value, value)
 
-/**
- * Check the return value of the CUDA runtime API call and exit
- * the application if the call has failed.
- */
 static void CheckCudaErrorAux(const char *file, unsigned line,
 		const char *statement, cudaError_t err) {
 	if (err == cudaSuccess)
@@ -32,7 +27,7 @@ __global__ void naiveFiltering(Pixel* pixelsDevice, float* kernelDevice, Pixel* 
 	int row = blockIdx.y*blockDim.y + threadIdx.y;
 	int col = blockIdx.x*blockDim.x + threadIdx.x;
 
-	if ((row < widthResult) && (col < heightResult)) {
+	if ((row < heightResult) && (col < widthResult)) {
 		float sumR, sumG, sumB;
 		int a, b;
 
@@ -92,8 +87,6 @@ int main() {
 
     auto* kf = new KernelFactory();
 
-    // TODO aggiornare i filtri con matrice unidimensionale. Per quanto riguarda i new sembrerebbe che a CUDA vadano
-    //  bene, in ogni caso e' veloce mettere malloc al posto dei new
     std::vector<Kernel *> kernels = kf->createAllKernels(n);
 
     for (auto &kernel : kernels) {
@@ -122,21 +115,21 @@ int main() {
 	start = std::clock();
 	double duration;
 
-	int n = 5;
-	Image* img = new Image("../images/computer_programming.ppm");
+	int n = 3;
+	Image* img = new Image("../images/marbles.ppm");
 
 	Pixel* pixels = img->getPixels();
 	int width = img->getWidth();
 	int height = img->getHeight();
 
-	std::string filterName = "identity";
 	auto* kf = new KernelFactory();
-	Kernel* kernel = kf->createKernel(n, filterName);
+	Kernel* kernel = kf->createKernel(n, "identity");
 
 	float* identity = kernel->getFilter();
 
 	int widthResult = width - (n/2) * 2;
 	int heightResult = height - (n/2) * 2;
+
 	Pixel* result = new Pixel[widthResult * heightResult];
 
 	// Allocazione memoria nel device
@@ -152,11 +145,19 @@ int main() {
 	CUDA_CHECK_RETURN(cudaMemcpy(pixelsDevice, pixels, width * height * sizeof(Pixel), cudaMemcpyHostToDevice));
 	CUDA_CHECK_RETURN(cudaMemcpy(identityDevice, identity, n * n * sizeof(float), cudaMemcpyHostToDevice));
 
-	dim3 gridDim = (n, n);
-	dim3 blockDim = (widthResult, heightResult);
+	dim3 gridDim(48, 48);
+	dim3 blockDim(ceil(((float) widthResult) / gridDim.x), ceil(((float) heightResult) / gridDim.y));
+
+	printf("# pixels totali immagine nuova: %d\n", widthResult * heightResult);
+
+	printf("gridDim: %d, %d\n", gridDim.x, gridDim.y);
+	printf("blockDim: %d, %d\n", blockDim.x, blockDim.y);
+	printf("# blocchi: %d\n", gridDim.x * gridDim.y);
+	printf("Threads per blocco: %d\n", blockDim.x * blockDim.y);
+	printf("Threads totali: %d\n", blockDim.x * blockDim.y * gridDim.x * gridDim.y);
 
 	// Invocazione del kernel
-	naiveFiltering<<<blockDim, gridDim>>>(pixelsDevice, identityDevice, resultDevice, width, height,
+	naiveFiltering<<<gridDim, blockDim>>>(pixelsDevice, identityDevice, resultDevice, width, height,
 			n, widthResult, heightResult);
 
 	cudaDeviceSynchronize();
@@ -165,7 +166,8 @@ int main() {
 			cudaMemcpyDeviceToHost));
 
 	Image* newImage = new Image(result, widthResult, heightResult, 255, img->getMagic());
-	newImage->storeImage("../images/cuda_" + filterName + ".ppm");
+
+	newImage->storeImage("../images/cudaIdentity.ppm");
 
 	cudaFree(pixelsDevice);
 	cudaFree(identityDevice);
