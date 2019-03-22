@@ -123,7 +123,8 @@ int main() {
 	int height = img->getHeight();
 
 	auto* kf = new KernelFactory();
-	Kernel* kernel = kf->createKernel(n, "identity");
+    std::string filterName = "identity";
+	Kernel* kernel = kf->createKernel(n, filterName);
 
 	float* identity = kernel->getFilter();
 
@@ -167,7 +168,7 @@ int main() {
 
 	Image* newImage = new Image(result, widthResult, heightResult, 255, img->getMagic());
 
-	newImage->storeImage("../images/cudaIdentity.ppm");
+    newImage->storeImage("../images/cuda_" + filterName + ".ppm");
 
 	cudaFree(pixelsDevice);
 	cudaFree(identityDevice);
