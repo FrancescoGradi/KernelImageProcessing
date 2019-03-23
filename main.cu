@@ -72,8 +72,8 @@ __global__ void naiveFiltering(Pixel* pixelsDevice, float* kernelDevice, Pixel* 
 	}
 }
 
-__global__ void tilingFiltering(Pixel* pixelsDevice, float* kernelDevice, Pixel* resultDevice, int width, int height,
-                                int n, int widthResult, int heightResult) {
+__global__ void tilingFiltering(int* intPixelsRed, int* intPixelsGreen, int* intPixelsBlue, float* kernelDevice,
+		Pixel* resultDevice, int width, int height, int n, int widthResult, int heightResult) {
 	/* Siccome viene utilizzata la shared memory, secondo me è più sensato fare le conversioni prima dell'allocazione
 	 * della memoria stessa. Purtroppo si perde un po' in velocità, perché dovranno essere fatti tre cicli al posto
 	 * di uno solo. Un'idea alternativa portebbe prevedere di scrivere una funzione che permetta di convertire
@@ -82,21 +82,12 @@ __global__ void tilingFiltering(Pixel* pixelsDevice, float* kernelDevice, Pixel*
     // Se dichiari la variabile come extern, nella chiamata al kernel devi esplicitare la quantità di memoria da
     // allocare.
     __shared__ int sharedMemory[TILE_WIDTH];
-    int* intPixelsRed = new int[width * height];
-	int* intPixelsGreen = new int[width * height];
-	int* intPixelsBlue = new int[width * height];
+
     int row = blockIdx.y*blockDim.y + threadIdx.y;
     int col = blockIdx.x*blockDim.x + threadIdx.x;
     int a, b;
     int sum = 0;
 
-    // TODO: illegal memory access (77) in questo ciclo.
-    for(int i = 0; i < width * height; i++) {
-        intPixelsRed[i] = (int)pixelsDevice[i].r;
-        intPixelsGreen[i] = (int)pixelsDevice[i].g;
-        intPixelsBlue[i] = (int)pixelsDevice[i].b;
-    }
-	printf("sentinella");
     // Il processo ha bisogno di caricare un numero di chunk pari a (width * height) / TILE_WIDTH per ogni canale,
     // quindi avendo immagini a 3 canali devo ripetere il tutto per tre volte.
     for(int phase = 0; phase < (width * height) / TILE_WIDTH; ++phase) {
@@ -113,7 +104,7 @@ __global__ void tilingFiltering(Pixel* pixelsDevice, float* kernelDevice, Pixel*
                 b = 0;
 
                 for (int l = col; l < col + n; l++) {
-                    sum += kernelDevice[a * n + b] * intPixelsRed[k * width + l];
+                    sum += kernelDevice[a * n + b] * sharedMemory[k * width + l];
                     b++;
                 }
                 a++;
@@ -142,7 +133,7 @@ __global__ void tilingFiltering(Pixel* pixelsDevice, float* kernelDevice, Pixel*
                 b = 0;
 
                 for (int l = col; l < col + n; l++) {
-                    sum += kernelDevice[a * n + b] * intPixelsGreen[k * width + l];
+                    sum += kernelDevice[a * n + b] * sharedMemory[k * width + l];
                     b++;
                 }
                 a++;
@@ -171,7 +162,7 @@ __global__ void tilingFiltering(Pixel* pixelsDevice, float* kernelDevice, Pixel*
                 b = 0;
 
                 for (int l = col; l < col + n; l++) {
-                    sum += kernelDevice[a*n + b] * intPixelsBlue[k*width + l];
+                    sum += kernelDevice[a*n + b] * sharedMemory[k*width + l];
                     b++;
                 }
                 a++;
@@ -185,7 +176,6 @@ __global__ void tilingFiltering(Pixel* pixelsDevice, float* kernelDevice, Pixel*
             resultDevice[row*widthResult + col].b = ((char) sum);
         }
     }
-	__syncthreads();
 
 }
 
@@ -277,14 +267,25 @@ int main() {
 	printf("Threads totali: %d\n", blockDim.x * blockDim.y * gridDim.x * gridDim.y);
 
     // Invocazione del kernel
-    naiveFiltering<<<gridDim, blockDim,>>>(pixelsDevice, identityDevice, resultDevice, width,
-            height, n, widthResult, heightResult);
+    /*naiveFiltering<<<gridDim, blockDim,>>>(pixelsDevice, identityDevice, resultDevice, width,
+            height, n, widthResult, heightResult);*/
 
-	/*tilingFiltering<<<gridDim, blockDim>>>(pixelsDevice, identityDevice, resultDevice, width,
-	        height, n, widthResult, heightResult);*/
+	int* intPixelsRed = new int[width * height];
+	int* intPixelsGreen = new int[width * height];
+	int* intPixelsBlue = new int[width * height];
+
+	for(int i = 0; i < width * height; i++) {
+		intPixelsRed[i] = pixels[i].r;
+		intPixelsGreen[i] = pixels[i].g;
+		intPixelsBlue[i] = pixels[i].b;
+	}
+
+	tilingFiltering<<<gridDim, blockDim>>>(intPixelsRed, intPixelsGreen, intPixelsBlue, identityDevice, resultDevice,
+			width, height, n, widthResult, heightResult);
 
 	cudaDeviceSynchronize();
 
+	// TODO: problema nella copia del risultato: illegal memory access (77)
 	CUDA_CHECK_RETURN(cudaMemcpy(result, resultDevice, sizeof(Pixel) * widthResult * heightResult,
 			cudaMemcpyDeviceToHost));
 
@@ -298,6 +299,10 @@ int main() {
 
 	delete [] pixels;
 	delete [] identity;
+
+	delete [] intPixelsRed;
+	delete [] intPixelsGreen;
+	delete [] intPixelsBlue;
 
 	duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
 
