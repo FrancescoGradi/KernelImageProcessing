@@ -11,6 +11,7 @@
 
 static void CheckCudaErrorAux(const char *, unsigned, const char *, cudaError_t);
 #define CUDA_CHECK_RETURN(value) CheckCudaErrorAux(__FILE__,__LINE__, #value, value)
+#define TILE_WIDTH 128
 
 static void CheckCudaErrorAux(const char *file, unsigned line,
 		const char *statement, cudaError_t err) {
@@ -70,6 +71,124 @@ __global__ void naiveFiltering(Pixel* pixelsDevice, float* kernelDevice, Pixel* 
 		resultDevice[row*widthResult + col].b = ((char) sumB);
 	}
 }
+
+__global__ void tilingFiltering(Pixel* pixelsDevice, float* kernelDevice, Pixel* resultDevice, int width, int height,
+                                int n, int widthResult, int heightResult) {
+	/* Siccome viene utilizzata la shared memory, secondo me è più sensato fare le conversioni prima dell'allocazione
+	 * della memoria stessa. Purtroppo si perde un po' in velocità, perché dovranno essere fatti tre cicli al posto
+	 * di uno solo. Un'idea alternativa portebbe prevedere di scrivere una funzione che permetta di convertire
+	 * direttamente l'array di pixels in int/float, così da non dover effettuare la conversione nelle varie funzioni
+	 */
+    // Se dichiari la variabile come extern, nella chiamata al kernel devi esplicitare la quantità di memoria da
+    // allocare.
+    __shared__ int sharedMemory[TILE_WIDTH];
+    int* intPixelsRed = new int[width * height];
+	int* intPixelsGreen = new int[width * height];
+	int* intPixelsBlue = new int[width * height];
+    int row = blockIdx.y*blockDim.y + threadIdx.y;
+    int col = blockIdx.x*blockDim.x + threadIdx.x;
+    int a, b;
+    int sum = 0;
+
+    // TODO: illegal memory access (77) in questo ciclo.
+    for(int i = 0; i < width * height; i++) {
+        intPixelsRed[i] = (int)pixelsDevice[i].r;
+        intPixelsGreen[i] = (int)pixelsDevice[i].g;
+        intPixelsBlue[i] = (int)pixelsDevice[i].b;
+    }
+	printf("sentinella");
+    // Il processo ha bisogno di caricare un numero di chunk pari a (width * height) / TILE_WIDTH per ogni canale,
+    // quindi avendo immagini a 3 canali devo ripetere il tutto per tre volte.
+    for(int phase = 0; phase < (width * height) / TILE_WIDTH; ++phase) {
+        for (int i = 0; i < TILE_WIDTH; ++i) {
+            sharedMemory[i] = intPixelsRed[i];
+        }
+		__syncthreads();
+
+        if ((row < heightResult) && (col < widthResult)) {
+            sum = 0;
+            a = 0;
+
+            for (int k = row; k < row + n; k++) {
+                b = 0;
+
+                for (int l = col; l < col + n; l++) {
+                    sum += kernelDevice[a * n + b] * intPixelsRed[k * width + l];
+                    b++;
+                }
+                a++;
+            }
+
+            if (sum < 0)
+                sum = 0;
+            if (sum > 255)
+                sum = 255;
+
+            resultDevice[row * widthResult + col].r = ((char) sum);
+        }
+    }
+	__syncthreads();
+    for(int phase = 0; phase < (width * height) / TILE_WIDTH; ++phase) {
+        // Ripeto il procedimento per il green
+        for (int i = 0; i < TILE_WIDTH; ++i) {
+            sharedMemory[i] = intPixelsGreen[i];
+        }
+		__syncthreads();
+        if ((row < heightResult) && (col < widthResult)) {
+            sum = 0;
+            a = 0;
+
+            for (int k = row; k < row + n; k++) {
+                b = 0;
+
+                for (int l = col; l < col + n; l++) {
+                    sum += kernelDevice[a * n + b] * intPixelsGreen[k * width + l];
+                    b++;
+                }
+                a++;
+            }
+
+            if (sum < 0)
+                sum = 0;
+            if (sum > 255)
+                sum = 255;
+
+            resultDevice[row * widthResult + col].g = ((char) sum);
+        }
+    }
+	__syncthreads();
+    for(int phase = 0; phase < (width * height) / TILE_WIDTH; ++phase) {
+        // Ripeto il procedimento per il blue
+        for (int i = 0; i < TILE_WIDTH; ++i) {
+            sharedMemory[i] = intPixelsBlue[i];
+        }
+		__syncthreads();
+        if ((row < heightResult) && (col < widthResult)) {
+            sum = 0;
+            a = 0;
+
+            for (int k = row; k < row + n; k++) {
+                b = 0;
+
+                for (int l = col; l < col + n; l++) {
+                    sum += kernelDevice[a*n + b] * intPixelsBlue[k*width + l];
+                    b++;
+                }
+                a++;
+            }
+
+            if (sum < 0)
+                sum = 0;
+            if (sum > 255)
+                sum = 255;
+
+            resultDevice[row*widthResult + col].b = ((char) sum);
+        }
+    }
+	__syncthreads();
+
+}
+
 
 int main() {
 
@@ -157,9 +276,12 @@ int main() {
 	printf("Threads per blocco: %d\n", blockDim.x * blockDim.y);
 	printf("Threads totali: %d\n", blockDim.x * blockDim.y * gridDim.x * gridDim.y);
 
-	// Invocazione del kernel
-	naiveFiltering<<<gridDim, blockDim>>>(pixelsDevice, identityDevice, resultDevice, width, height,
-			n, widthResult, heightResult);
+    // Invocazione del kernel
+    naiveFiltering<<<gridDim, blockDim,>>>(pixelsDevice, identityDevice, resultDevice, width,
+            height, n, widthResult, heightResult);
+
+	/*tilingFiltering<<<gridDim, blockDim>>>(pixelsDevice, identityDevice, resultDevice, width,
+	        height, n, widthResult, heightResult);*/
 
 	cudaDeviceSynchronize();
 
@@ -168,7 +290,7 @@ int main() {
 
 	Image* newImage = new Image(result, widthResult, heightResult, 255, img->getMagic());
 
-    newImage->storeImage("../images/cuda_" + filterName + ".ppm");
+    newImage->storeImage("../images/cuda_" + filterName + ".ppm", widthResult, heightResult);
 
 	cudaFree(pixelsDevice);
 	cudaFree(identityDevice);

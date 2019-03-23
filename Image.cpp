@@ -121,7 +121,7 @@ void Image::headerCommentCheck(std::ifstream* picture) {
 
 }
 
-void Image::storeImage(std::string pathDest) {
+void Image::storeImage(std::string pathDest, int width, int height) {
 
     if (pixels == nullptr) {
         std::cout << "No image to store." << std::endl;

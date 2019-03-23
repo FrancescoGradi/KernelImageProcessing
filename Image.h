@@ -17,7 +17,7 @@ public:
     virtual ~Image();
 
     void loadImage(std::string pathImage);
-    void storeImage(std::string pathDest);
+    void storeImage(std::string pathDest, int width, int height);
 
     void headerCommentCheck(std::ifstream* picture);
 
