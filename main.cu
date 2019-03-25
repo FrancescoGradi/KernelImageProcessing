@@ -8,10 +8,13 @@
 #include <sstream>
 #include <cstdio>
 #include <ctime>
+#include <curand_mtgp32_kernel.h>
 
 static void CheckCudaErrorAux(const char *, unsigned, const char *, cudaError_t);
 #define CUDA_CHECK_RETURN(value) CheckCudaErrorAux(__FILE__,__LINE__, #value, value)
-#define TILE_WIDTH 128
+#define TILE_WIDTH 16
+#define w (TILE_WIDTH + 3 - 1)
+
 
 static void CheckCudaErrorAux(const char *file, unsigned line,
 		const char *statement, cudaError_t err) {
@@ -22,8 +25,8 @@ static void CheckCudaErrorAux(const char *file, unsigned line,
 	exit(1);
 }
 
-__global__ void naiveFiltering(Pixel* pixelsDevice, float* kernelDevice, Pixel* resultDevice, int width, int height,
-		int n, int widthResult, int heightResult) {
+__global__ void naiveFiltering(float* pixelsDevice, float* kernelDevice, float* resultDevice, int width, int height,
+		int n, int widthResult, int heightResult, int channels) {
 
 	int row = blockIdx.y*blockDim.y + threadIdx.y;
 	int col = blockIdx.x*blockDim.x + threadIdx.x;
@@ -42,9 +45,9 @@ __global__ void naiveFiltering(Pixel* pixelsDevice, float* kernelDevice, Pixel* 
 			b = 0;
 
 			for (int l = col; l < col + n; l++) {
-				sumR += kernelDevice[a*n + b] * (int) (unsigned char) pixelsDevice[k*width + l].r;
-				sumG += kernelDevice[a*n + b] * (int) (unsigned char) pixelsDevice[k*width + l].g;
-				sumB += kernelDevice[a*n + b] * (int) (unsigned char) pixelsDevice[k*width + l].b;
+				sumR += kernelDevice[a*n + b] * pixelsDevice[k*width*channels + l*channels + 0];
+				sumG += kernelDevice[a*n + b] * pixelsDevice[k*width*channels + l*channels + 1];
+				sumB += kernelDevice[a*n + b] * pixelsDevice[k*width*channels + l*channels + 2];
 
 				b++;
 			}
@@ -53,22 +56,22 @@ __global__ void naiveFiltering(Pixel* pixelsDevice, float* kernelDevice, Pixel* 
 
 		if (sumR < 0)
 			sumR = 0;
-		if (sumR > 255)
-			sumR = 255;
+		if (sumR > 1)
+			sumR = 1;
 
 		if (sumG < 0)
 			sumG = 0;
-		if (sumG > 255)
-			sumG = 255;
+		if (sumG > 1)
+			sumG = 1;
 
 		if (sumB < 0)
 			sumB = 0;
-		if (sumB > 255)
-			sumB = 255;
+		if (sumB > 1)
+			sumB = 1;
 
-		resultDevice[row*widthResult + col].r = ((char) sumR);
-		resultDevice[row*widthResult + col].g = ((char) sumG);
-		resultDevice[row*widthResult + col].b = ((char) sumB);
+		resultDevice[row*widthResult*channels + col*channels + 0] = sumR;
+		resultDevice[row*widthResult*channels + col*channels + 1] = sumG;
+		resultDevice[row*widthResult*channels + col*channels + 2] = sumB;
 	}
 }
 
@@ -179,18 +182,73 @@ __global__ void tilingFiltering(int* intPixelsRed, int* intPixelsGreen, int* int
 
 }
 
+__global__ void tiling(float* pixelsDevice, float* kernelDevice, float* resultDevice, int width, int height,
+                       int n, int widthResult, int heightResult, int channels) {
+    __shared__ float N_ds[w][w];
+
+    for (int k = 0; k < channels; ++k) {
+
+        int dest = threadIdx.y * TILE_WIDTH + threadIdx.x;
+        int destY = dest / w;
+        int destX = dest % w;
+        int srcY = blockIdx.y * TILE_WIDTH + destY - (n/2);
+        int srcX = blockIdx.x * TILE_WIDTH + destX - (n/2);
+        int src = srcY*width*channels + srcX*channels + k;
+        if (srcY >= 0 && srcY < height && srcX >= 0 && srcX < width) {
+            N_ds[destY][destX] = pixelsDevice[src];
+        } else {
+            N_ds[destY][destX] = 0;
+        }
+
+        dest = threadIdx.y * TILE_WIDTH + threadIdx.x + TILE_WIDTH * TILE_WIDTH;
+        destY = dest / w;
+        destX = dest % w;
+        srcY = blockIdx.y * TILE_WIDTH + destY - (n/2);
+        srcX = blockIdx.x * TILE_WIDTH + destX - (n/2);
+        src = srcY*width*channels + srcX*channels + k;
+        if (destY < w) {
+            if (srcY >= 0 && srcY < height && srcX >= 0 && srcX < width) {
+                N_ds[destY][destX] = pixelsDevice[src];
+            } else {
+                N_ds[destY][destX] = 0;
+            }
+        }
+        __syncthreads();
+
+        float sum = 0;
+        int y, x;
+        for (int y = 0; y < n; ++y) {
+            for (int x = 0; x < n; ++x) {
+                sum += N_ds[threadIdx.y + y][threadIdx.x + x] * kernelDevice[y * n + x];
+            }
+        }
+
+        if (sum < 0)
+            sum = 0;
+        if (sum > 1)
+            sum = 1;
+
+        y = blockIdx.y * TILE_WIDTH + threadIdx.y;
+        x = blockIdx.x * TILE_WIDTH + threadIdx.x;
+
+        if (x < heightResult && y < widthResult)
+            resultDevice[y*widthResult*channels + x*channels + k] = sum;
+        __syncthreads();
+    }
+}
+
 
 int main() {
 
 	// Parte sequenziale completa
-	/*
+    /*
     std::cout << "Starting clock..." << std::endl;
     std::clock_t start;
 
     start = std::clock();
     double duration;
 
-    Image* img = new Image("images/computer_programming.ppm");
+    Image* img = new Image("../images/computer_programming.ppm");
 
     int n = 3;
 
@@ -200,11 +258,11 @@ int main() {
 
     for (auto &kernel : kernels) {
         std::stringstream path;
-        path << "images/" << kernel->getType() << n << ".ppm";
+        path << "../images/" << kernel->getType() << n << ".ppm";
         std::string s = path.str();
 
-        (kernel->applyFiltering(img->getPixels(), img->getWidth(),
-                img->getHeight(), img->getMagic()))->storeImage(s);
+        (kernel->applyFiltering(img->getPixels(), img->getWidth(), img->getHeight(), img->getChannels(),
+                img->getMagic()))->storeImage(s);
     }
 
     for (auto &kernel : kernels) {
@@ -216,7 +274,9 @@ int main() {
     duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
 
     std::cout << "Computation ended after " << duration << " seconds." << std::endl;
-    */
+
+
+    // Parte parallela CUDA senza Tiling
 
 	std::cout << "Starting clock..." << std::endl;
 	std::clock_t start;
@@ -227,9 +287,10 @@ int main() {
 	int n = 3;
 	Image* img = new Image("../images/marbles.ppm");
 
-	Pixel* pixels = img->getPixels();
+	float* pixels = img->getPixels();
 	int width = img->getWidth();
 	int height = img->getHeight();
+	int channels = img->getChannels();
 
 	auto* kf = new KernelFactory();
     std::string filterName = "identity";
@@ -240,23 +301,23 @@ int main() {
 	int widthResult = width - (n/2) * 2;
 	int heightResult = height - (n/2) * 2;
 
-	Pixel* result = new Pixel[widthResult * heightResult];
+	float* result = new float[widthResult * heightResult * channels];
 
 	// Allocazione memoria nel device
-	Pixel* pixelsDevice;
+	float* pixelsDevice;
 	float* identityDevice;
-	Pixel* resultDevice;
+	float* resultDevice;
 
-	CUDA_CHECK_RETURN(cudaMalloc((void **)&pixelsDevice, sizeof(Pixel) * width * height));
+	CUDA_CHECK_RETURN(cudaMalloc((void **)&pixelsDevice, sizeof(float) * width * height * channels));
 	CUDA_CHECK_RETURN(cudaMalloc((void **)&identityDevice, sizeof(float) * n * n));
-	CUDA_CHECK_RETURN(cudaMalloc((void **)&resultDevice, sizeof(Pixel) * widthResult * heightResult));
+	CUDA_CHECK_RETURN(cudaMalloc((void **)&resultDevice, sizeof(float) * widthResult * heightResult * channels));
 
 	// Copia delle matrici nel device
-	CUDA_CHECK_RETURN(cudaMemcpy(pixelsDevice, pixels, width * height * sizeof(Pixel), cudaMemcpyHostToDevice));
+	CUDA_CHECK_RETURN(cudaMemcpy(pixelsDevice, pixels, width * height * channels * sizeof(float), cudaMemcpyHostToDevice));
 	CUDA_CHECK_RETURN(cudaMemcpy(identityDevice, identity, n * n * sizeof(float), cudaMemcpyHostToDevice));
 
-	dim3 gridDim(48, 48);
-	dim3 blockDim(ceil(((float) widthResult) / gridDim.x), ceil(((float) heightResult) / gridDim.y));
+	dim3 blockDim(32, 32);
+    dim3 gridDim(ceil(((float) widthResult) / blockDim.x), ceil(((float) heightResult) / blockDim.y));
 
 	printf("# pixels totali immagine nuova: %d\n", widthResult * heightResult);
 
@@ -267,31 +328,17 @@ int main() {
 	printf("Threads totali: %d\n", blockDim.x * blockDim.y * gridDim.x * gridDim.y);
 
     // Invocazione del kernel
-    /*naiveFiltering<<<gridDim, blockDim,>>>(pixelsDevice, identityDevice, resultDevice, width,
-            height, n, widthResult, heightResult);*/
-
-	int* intPixelsRed = new int[width * height];
-	int* intPixelsGreen = new int[width * height];
-	int* intPixelsBlue = new int[width * height];
-
-	for(int i = 0; i < width * height; i++) {
-		intPixelsRed[i] = pixels[i].r;
-		intPixelsGreen[i] = pixels[i].g;
-		intPixelsBlue[i] = pixels[i].b;
-	}
-
-	tilingFiltering<<<gridDim, blockDim>>>(intPixelsRed, intPixelsGreen, intPixelsBlue, identityDevice, resultDevice,
-			width, height, n, widthResult, heightResult);
+    naiveFiltering<<<gridDim, blockDim>>>(pixelsDevice, identityDevice, resultDevice, width,
+            height, n, widthResult, heightResult, channels);
 
 	cudaDeviceSynchronize();
 
-	// TODO: problema nella copia del risultato: illegal memory access (77)
-	CUDA_CHECK_RETURN(cudaMemcpy(result, resultDevice, sizeof(Pixel) * widthResult * heightResult,
-			cudaMemcpyDeviceToHost));
+    CUDA_CHECK_RETURN(cudaMemcpy(result, resultDevice, sizeof(float) * widthResult * heightResult * channels,
+                                 cudaMemcpyDeviceToHost));
 
-	Image* newImage = new Image(result, widthResult, heightResult, 255, img->getMagic());
+	Image* newImage = new Image(result, widthResult, heightResult, 255, channels, img->getMagic());
 
-    newImage->storeImage("../images/cuda_" + filterName + ".ppm", widthResult, heightResult);
+    newImage->storeImage("../images/cuda_" + filterName + ".ppm");
 
 	cudaFree(pixelsDevice);
 	cudaFree(identityDevice);
@@ -300,13 +347,86 @@ int main() {
 	delete [] pixels;
 	delete [] identity;
 
-	delete [] intPixelsRed;
-	delete [] intPixelsGreen;
-	delete [] intPixelsBlue;
-
 	duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
 
 	std::cout << "Computation ended after " << duration << " seconds." << std::endl;
+
+    */
+
+    // Codice Cuda con Tiling
+
+    std::cout << "Starting clock..." << std::endl;
+    std::clock_t start;
+
+    start = std::clock();
+    double duration;
+
+    int n = 3;
+    Image* img = new Image("../images/computer_programming.ppm");
+
+    float* pixels = img->getPixels();
+    int width = img->getWidth();
+    int height = img->getHeight();
+    int channels = img->getChannels();
+
+    auto* kf = new KernelFactory();
+    std::string filterName = "identity";
+    Kernel* kernel = kf->createKernel(n, filterName);
+
+    float* identity = kernel->getFilter();
+
+    int widthResult = width - (n/2) * 2;
+    int heightResult = height - (n/2) * 2;
+
+    float* result = new float[widthResult * heightResult * channels];
+
+    // Allocazione memoria nel device
+    float* pixelsDevice;
+    float* identityDevice;
+    float* resultDevice;
+
+    CUDA_CHECK_RETURN(cudaMalloc((void **)&pixelsDevice, sizeof(float) * width * height * channels));
+    CUDA_CHECK_RETURN(cudaMalloc((void **)&identityDevice, sizeof(float) * n * n));
+    CUDA_CHECK_RETURN(cudaMalloc((void **)&resultDevice, sizeof(float) * widthResult * heightResult * channels));
+
+    // Copia delle matrici nel device
+    CUDA_CHECK_RETURN(cudaMemcpy(pixelsDevice, pixels, width * height * channels * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK_RETURN(cudaMemcpy(identityDevice, identity, n * n * sizeof(float), cudaMemcpyHostToDevice));
+
+    dim3 blockDim(TILE_WIDTH, TILE_WIDTH);
+    dim3 gridDim(ceil(((float) widthResult) / TILE_WIDTH), ceil(((float) heightResult) / TILE_WIDTH));
+
+    printf("# pixels totali immagine nuova: %d\n", widthResult * heightResult);
+
+    printf("gridDim: %d, %d\n", gridDim.x, gridDim.y);
+    printf("blockDim: %d, %d\n", blockDim.x, blockDim.y);
+    printf("# blocchi: %d\n", gridDim.x * gridDim.y);
+    printf("Threads per blocco: %d\n", blockDim.x * blockDim.y);
+    printf("Threads totali: %d\n", blockDim.x * blockDim.y * gridDim.x * gridDim.y);
+
+    // Invocazione del kernel
+    tiling<<<gridDim, blockDim>>>(pixelsDevice, identityDevice, resultDevice, width,
+            height, n, widthResult, heightResult, channels);
+
+    cudaDeviceSynchronize();
+
+    CUDA_CHECK_RETURN(cudaMemcpy(result, resultDevice, sizeof(float) * widthResult * heightResult * channels,
+                                 cudaMemcpyDeviceToHost));
+
+    Image* newImage = new Image(result, widthResult, heightResult, 255, channels, img->getMagic());
+
+    newImage->storeImage("../images/cuda_" + filterName + ".ppm");
+
+    cudaFree(pixelsDevice);
+    cudaFree(identityDevice);
+    cudaFree(resultDevice);
+
+    delete [] pixels;
+    delete [] identity;
+
+    duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
+
+    std::cout << "Computation ended after " << duration << " seconds." << std::endl;
 
     return 0;
 }

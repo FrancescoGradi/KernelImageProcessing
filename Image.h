@@ -12,12 +12,12 @@ class Image {
 
 public:
     Image();
-    explicit Image(Pixel* pixels, int width, int height, int max, std::string magic);
+    explicit Image(float* pixels, int width, int height, int max, int channels, std::string magic);
     explicit Image(std::string pathImage);
     virtual ~Image();
 
     void loadImage(std::string pathImage);
-    void storeImage(std::string pathDest, int width, int height);
+    void storeImage(std::string pathDest);
 
     void headerCommentCheck(std::ifstream* picture);
 
@@ -30,20 +30,25 @@ public:
 
     void setHeight(int height);
 
+    int getChannels() const;
+
+    void setChannels(int channels);
+
     std::string getMagic() const;
 
     void setMagic(std::string magic);
 
-    Pixel *getPixels() const;
+    float *getPixels() const;
 
-    void setPixels(Pixel *pixels);
+    void setPixels(float *pixels);
 
 private:
     int width;
     int height;
     int max;
+    int channels;
     std::string magic;
-    Pixel* pixels;
+    float* pixels;
 };
 
 

@@ -20,7 +20,7 @@ public:
 
     float* getFilter();
 
-    Image* applyFiltering(Pixel* pixels, int width, int height, std::string magic);
+    Image* applyFiltering(float* pixels, int width, int height, int channels, std::string magic);
 
 protected:
     float* filter;

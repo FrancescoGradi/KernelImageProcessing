@@ -23,7 +23,7 @@ Kernel::Kernel(int size, std::string type) {
 
 }
 
-Image* Kernel::applyFiltering(Pixel* pixels, int width, int height, std::string magic) {
+Image* Kernel::applyFiltering(float* pixels, int width, int height, int channels, std::string magic) {
 
     // Dopo la convoluzione si riducono le dimensioni dell'immagine,
     int oldWidth = width;
@@ -34,7 +34,7 @@ Image* Kernel::applyFiltering(Pixel* pixels, int width, int height, std::string 
     float sumR, sumG, sumB;
     int a, b;
 
-    auto* newPixels = new Pixel[height * width];
+    auto* newPixels = new float[height * width * channels];
 
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
@@ -49,9 +49,9 @@ Image* Kernel::applyFiltering(Pixel* pixels, int width, int height, std::string 
                 b = 0;
 
                 for (int l = j; l < j + size; l++) {
-                    sumR += filter[a*size + b] * (int) (unsigned char) pixels[k*oldWidth + l].r;
-                    sumG += filter[a*size + b] * (int) (unsigned char) pixels[k*oldWidth + l].g;
-                    sumB += filter[a*size + b] * (int) (unsigned char) pixels[k*oldWidth + l].b;
+                    sumR += filter[a*size + b] * pixels[k*oldWidth*channels + l*channels + 0];
+                    sumG += filter[a*size + b] * pixels[k*oldWidth*channels + l*channels + 1];
+                    sumB += filter[a*size + b] * pixels[k*oldWidth*channels + l*channels + 2];
 
                     b++;
                 }
@@ -60,26 +60,26 @@ Image* Kernel::applyFiltering(Pixel* pixels, int width, int height, std::string 
 
             if (sumR < 0)
                 sumR = 0;
-            if (sumR > 255)
-                sumR = 255;
+            if (sumR > 1)
+                sumR = 1;
 
             if (sumG < 0)
                 sumG = 0;
-            if (sumG > 255)
-                sumG = 255;
+            if (sumG > 1)
+                sumG = 1;
 
             if (sumB < 0)
                 sumB = 0;
-            if (sumB > 255)
-                sumB = 255;
+            if (sumB > 1)
+                sumB = 1;
 
-            newPixels[i*width + j].r = ((char) sumR);
-            newPixels[i*width + j].g = ((char) sumG);
-            newPixels[i*width + j].b = ((char) sumB);
+            newPixels[i*width*channels + j*channels + 0] = sumR;
+            newPixels[i*width*channels + j*channels + 1] = sumG;
+            newPixels[i*width*channels + j*channels + 2] = sumB;
         }
     }
 
-    return new Image(newPixels, width, height, 255, magic);
+    return new Image(newPixels, width, height, 255, channels, magic);
 
 }
 

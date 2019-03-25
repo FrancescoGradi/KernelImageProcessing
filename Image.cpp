@@ -10,12 +10,11 @@
 
 Image::Image(): width(0), height(0), max(0), pixels(nullptr) {}
 
-Image::Image(Pixel *pixels, int width, int height, int max, std::string magic) : pixels(pixels), width(width),
-    height(height), max(max), magic(magic){}
+Image::Image(float *pixels, int width, int height, int max, int channels, std::string magic) : pixels(pixels),
+    width(width), height(height), max(max), channels(channels), magic(magic){}
 
 Image::Image(std::string pathImage) {
     // Costruttore che incapsula il caricamento dell'immagine
-
     Image::loadImage(pathImage);
 }
 
@@ -49,11 +48,11 @@ void Image::setMagic(std::string magic) {
     Image::magic = magic;
 }
 
-Pixel *Image::getPixels() const {
+float *Image::getPixels() const {
     return pixels;
 }
 
-void Image::setPixels(Pixel *pixels) {
+void Image::setPixels(float *pixels) {
     Image::pixels;
 }
 
@@ -80,14 +79,16 @@ void Image::loadImage(std::string pathImage) {
     // Ho ripreso il codice di loro che prevedeva dei char per leggere i byte
     picture.read(tmp, size);
 
-    pixels = new Pixel[height * width];
+    channels = 3;
+
+    pixels = new float[height * width * channels];
 
     std::string byteRead = "";
     for(int i = 0; i < height; i++) {
         for(int j = 0; j < width; j++) {
-            pixels[i*width + j].r = tmp[3*i*width + 3*j + 0];
-            pixels[i*width + j].g = tmp[3*i*width + 3*j + 1];
-            pixels[i*width + j].b = tmp[3*i*width + 3*j + 2];
+            pixels[i*width*channels + j*channels + 0] = ((float)(unsigned char) tmp[3*i*width + 3*j + 0]) / 255;
+            pixels[i*width*channels + j*channels + 1] = ((float)(unsigned char) tmp[3*i*width + 3*j + 1]) / 255;
+            pixels[i*width*channels + j*channels + 2] = ((float)(unsigned char) tmp[3*i*width + 3*j + 2]) / 255;
         }
     }
 
@@ -121,7 +122,7 @@ void Image::headerCommentCheck(std::ifstream* picture) {
 
 }
 
-void Image::storeImage(std::string pathDest, int width, int height) {
+void Image::storeImage(std::string pathDest) {
 
     if (pixels == nullptr) {
         std::cout << "No image to store." << std::endl;
@@ -137,9 +138,9 @@ void Image::storeImage(std::string pathDest, int width, int height) {
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
 
-            tmp[3*i*width + 3*j + 2] = pixels[i*width + j].r;
-            tmp[3*i*width + 3*j + 0] = pixels[i*width + j].g;
-            tmp[3*i*width + 3*j + 1] = pixels[i*width + j].b;
+            tmp[3*i*width + 3*j + 2] = (char)(unsigned char)(pixels[i*width*channels + j*channels + 0] * 255);
+            tmp[3*i*width + 3*j + 0] = (char)(unsigned char)(pixels[i*width*channels + j*channels + 1] * 255);
+            tmp[3*i*width + 3*j + 1] = (char)(unsigned char)(pixels[i*width*channels + j*channels + 2] * 255);
         }
     }
 
@@ -148,4 +149,12 @@ void Image::storeImage(std::string pathDest, int width, int height) {
     img.write(tmp, width * height * 3);
     img.close();
 
+}
+
+int Image::getChannels() const {
+    return channels;
+}
+
+void Image::setChannels(int channels) {
+    Image::channels = channels;
 }
