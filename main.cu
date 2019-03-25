@@ -28,6 +28,8 @@ static void CheckCudaErrorAux(const char *file, unsigned line,
 __global__ void naiveFiltering(float* pixelsDevice, float* kernelDevice, float* resultDevice, int width, int height,
 		int n, int widthResult, int heightResult, int channels) {
 
+    // TODO fare un ciclo for esterno per i canali, cosi' da evitare il ripetersi della stessa roba
+
 	int row = blockIdx.y*blockDim.y + threadIdx.y;
 	int col = blockIdx.x*blockDim.x + threadIdx.x;
 
@@ -277,6 +279,10 @@ int main() {
 
 
     // Parte parallela CUDA senza Tiling
+
+    // TODO non ho grandi idee su come gestire queste tre parti diverse (tipo anche funzioni per misurare la velocita')
+    // comunque avevo in mente di fare il for su tutti i kernel (maschere)e invocare piu' volte il kernel cuda per ogni
+     // maschera, stando attenti ad allocare la memoria e a ricopiarla (stesso lavoro uguale per la parte di tiling).
 
 	std::cout << "Starting clock..." << std::endl;
 	std::clock_t start;

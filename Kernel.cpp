@@ -25,6 +25,8 @@ Kernel::Kernel(int size, std::string type) {
 
 Image* Kernel::applyFiltering(float* pixels, int width, int height, int channels, std::string magic) {
 
+    // TODO fare un ciclo for esterno per i canali, cosi' da evitare il ripetersi della stessa roba
+
     // Dopo la convoluzione si riducono le dimensioni dell'immagine,
     int oldWidth = width;
 
