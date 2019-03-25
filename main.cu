@@ -12,7 +12,7 @@
 
 static void CheckCudaErrorAux(const char *, unsigned, const char *, cudaError_t);
 #define CUDA_CHECK_RETURN(value) CheckCudaErrorAux(__FILE__,__LINE__, #value, value)
-#define TILE_WIDTH 16
+#define TILE_WIDTH 8
 #define w (TILE_WIDTH + 3 - 1)
 
 
@@ -231,7 +231,7 @@ __global__ void tiling(float* pixelsDevice, float* kernelDevice, float* resultDe
         y = blockIdx.y * TILE_WIDTH + threadIdx.y;
         x = blockIdx.x * TILE_WIDTH + threadIdx.x;
 
-        if (x < heightResult && y < widthResult)
+        if (y < heightResult && x < widthResult)
             resultDevice[y*widthResult*channels + x*channels + k] = sum;
         __syncthreads();
     }
