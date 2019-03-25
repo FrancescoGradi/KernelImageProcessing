@@ -15,52 +15,37 @@
 __global__ void naiveFiltering(float* pixelsDevice, float* kernelDevice, float* resultDevice, int width, int height,
                                int n, int widthResult, int heightResult, int channels) {
 
-    // TODO fare un ciclo for esterno per i canali, cosi' da evitare il ripetersi della stessa roba
-
     int row = blockIdx.y*blockDim.y + threadIdx.y;
     int col = blockIdx.x*blockDim.x + threadIdx.x;
 
-    if ((row < heightResult) && (col < widthResult)) {
-        float sumR, sumG, sumB;
-        int a, b;
+    float sum;
+    int a, b;
 
-        sumR = 0;
-        sumG = 0;
-        sumB = 0;
+    for(int i = 0; i < 3; i++) {
 
-        a = 0;
+        if ((row < heightResult) && (col < widthResult)) {
 
-        for (int k = row; k < row + n; k++) {
-            b = 0;
+            sum = 0;
+            a = 0;
 
-            for (int l = col; l < col + n; l++) {
-                sumR += kernelDevice[a*n + b] * pixelsDevice[k*width*channels + l*channels + 0];
-                sumG += kernelDevice[a*n + b] * pixelsDevice[k*width*channels + l*channels + 1];
-                sumB += kernelDevice[a*n + b] * pixelsDevice[k*width*channels + l*channels + 2];
+            for (int k = row; k < row + n; k++) {
+                b = 0;
 
-                b++;
+                for (int l = col; l < col + n; l++) {
+                    sum += kernelDevice[a * n + b] * pixelsDevice[k * width * channels + l * channels + i];
+                    b++;
+                }
+                a++;
             }
-            a++;
+
+            if (sum < 0)
+                sum = 0;
+            if (sum > 1)
+                sum = 1;
+
+            resultDevice[row * widthResult * channels + col * channels + i] = sum;
+
         }
-
-        if (sumR < 0)
-            sumR = 0;
-        if (sumR > 1)
-            sumR = 1;
-
-        if (sumG < 0)
-            sumG = 0;
-        if (sumG > 1)
-            sumG = 1;
-
-        if (sumB < 0)
-            sumB = 0;
-        if (sumB > 1)
-            sumB = 1;
-
-        resultDevice[row*widthResult*channels + col*channels + 0] = sumR;
-        resultDevice[row*widthResult*channels + col*channels + 1] = sumG;
-        resultDevice[row*widthResult*channels + col*channels + 2] = sumB;
     }
 }
 
