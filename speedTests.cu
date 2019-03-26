@@ -13,7 +13,7 @@
 #include <curand_mtgp32_kernel.h>
 
 #define CUDA_CHECK_RETURN(value) CheckCudaErrorAux(__FILE__,__LINE__, #value, value)
-#define TILE_WIDTH 8
+#define TILE_WIDTH 32
 #define w (TILE_WIDTH + 3 - 1)
 
 double CUDAWithTiling(int kernelSize, std::string imagePath, std::string filterName) {
@@ -197,4 +197,3 @@ double CPPNaive(int kernelSize, std::string imagePath, std::string filterName) {
     return duration;
 
 }
-
