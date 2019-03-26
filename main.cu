@@ -7,15 +7,23 @@ int main() {
 
     std::string path = "../images/computer_programming.ppm";
 
-    double durationCUDATiling = CUDAWithTiling(3, path, "sharpen");
-    std::cout << "Computation ended after " << durationCUDATiling << " seconds." << std::endl;
-    std::cout << "" << std::endl;
-    double durationCUDANaive = CUDANaive(3, path, "sharpen");
-    std::cout << "Computation ended after " << durationCUDANaive << " seconds." << std::endl;
-    std::cout << "" << std::endl;
-    double durationCPPNaive = CPPNaive(3, path, "sharpen");
-    std::cout << "Computation ended after " << durationCPPNaive << " seconds." << std::endl;
-    std::cout << "" << std::endl;
+    std::string kernels[5] = {"identity", "gauss", "box", "edges", "sharpen"};
+
+    double durationCUDATiling[5];
+    double durationCUDANaive[5];
+    double durationCPPNaive[5];
+
+    for(int i = 0; i < 5; i++) {
+        durationCUDATiling[i] = CUDAWithTiling(3, path, kernels[i]);
+        durationCUDANaive[i] = CUDANaive(3, path, kernels[i]);
+        durationCPPNaive[i] = CPPNaive(3, path, kernels[i]);
+    }
+
+    for(int i = 0; i < 5; i++) {
+        std::cout << kernels[i] << " duration: CUDA with tiling: " << durationCUDATiling[i];
+        std::cout << " | CUDA naive: " << durationCUDANaive[i];
+        std::cout << " | C++ naive: " << durationCPPNaive[i] << std::endl;
+    }
 
     return 0;
 }
