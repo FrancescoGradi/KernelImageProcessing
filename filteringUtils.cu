@@ -9,7 +9,7 @@
 #include <curand_mtgp32_kernel.h>
 
 #define CUDA_CHECK_RETURN(value) CheckCudaErrorAux(__FILE__,__LINE__, #value, value)
-#define TILE_WIDTH 8
+#define TILE_WIDTH 32
 #define w (TILE_WIDTH + 3 - 1)
 
 __global__ void naiveFiltering(float* pixelsDevice, float* kernelDevice, float* resultDevice, int width, int height,
@@ -191,8 +191,8 @@ __global__ void tiling(float* pixelsDevice, float* kernelDevice, float* resultDe
 
         float sum = 0;
         int y, x;
-        for (int y = 0; y < n; ++y) {
-            for (int x = 0; x < n; ++x) {
+        for (y = 0; y < n; ++y) {
+            for (x = 0; x < n; ++x) {
                 sum += N_ds[threadIdx.y + y][threadIdx.x + x] * kernelDevice[y * n + x];
             }
         }
