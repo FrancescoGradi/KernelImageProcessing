@@ -25,59 +25,40 @@ Kernel::Kernel(int size, std::string type) {
 
 Image* Kernel::applyFiltering(float* pixels, int width, int height, int channels, std::string magic) {
 
-    // TODO fare un ciclo for esterno per i canali, cosi' da evitare il ripetersi della stessa roba
-
-    // Dopo la convoluzione si riducono le dimensioni dell'immagine,
     int oldWidth = width;
 
     width -= (size/2) * 2;
     height -= (size/2) * 2;
 
-    float sumR, sumG, sumB;
+    float sum;
     int a, b;
 
     auto* newPixels = new float[height * width * channels];
 
-    for (int i = 0; i < height; i++) {
-        for (int j = 0; j < width; j++) {
+    for (int c = 0; c < channels; ++c) {
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
 
-            sumR = 0;
-            sumG = 0;
-            sumB = 0;
+                sum = 0;
+                a = 0;
 
-            a = 0;
+                for (int k = i; k < i + size; k++) {
+                    b = 0;
 
-            for (int k = i; k < i + size; k++) {
-                b = 0;
-
-                for (int l = j; l < j + size; l++) {
-                    sumR += filter[a*size + b] * pixels[k*oldWidth*channels + l*channels + 0];
-                    sumG += filter[a*size + b] * pixels[k*oldWidth*channels + l*channels + 1];
-                    sumB += filter[a*size + b] * pixels[k*oldWidth*channels + l*channels + 2];
-
-                    b++;
+                    for (int l = j; l < j + size; l++) {
+                        sum += filter[a * size + b] * pixels[k * oldWidth * channels + l * channels + c];
+                        b++;
+                    }
+                    a++;
                 }
-                a++;
+
+                if (sum < 0)
+                    sum = 0;
+                if (sum > 1)
+                    sum = 1;
+
+                newPixels[i * width * channels + j * channels + c] = sum;
             }
-
-            if (sumR < 0)
-                sumR = 0;
-            if (sumR > 1)
-                sumR = 1;
-
-            if (sumG < 0)
-                sumG = 0;
-            if (sumG > 1)
-                sumG = 1;
-
-            if (sumB < 0)
-                sumB = 0;
-            if (sumB > 1)
-                sumB = 1;
-
-            newPixels[i*width*channels + j*channels + 0] = sumR;
-            newPixels[i*width*channels + j*channels + 1] = sumG;
-            newPixels[i*width*channels + j*channels + 2] = sumB;
         }
     }
 

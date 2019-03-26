@@ -5,13 +5,15 @@
 
 int main() {
 
-    double durationCUDATiling = CUDAWithTiling(3, "../images/marbles.ppm", "sharpen");
+    std::string path = "../images/computer_programming.ppm";
+
+    double durationCUDATiling = CUDAWithTiling(3, path, "sharpen");
     std::cout << "Computation ended after " << durationCUDATiling << " seconds." << std::endl;
     std::cout << "" << std::endl;
-    double durationCUDANaive = CUDANaive(3, "../images/marbles.ppm", "sharpen");
+    double durationCUDANaive = CUDANaive(3, path, "sharpen");
     std::cout << "Computation ended after " << durationCUDANaive << " seconds." << std::endl;
     std::cout << "" << std::endl;
-    double durationCPPNaive = CPPNaive(3, "../images/marbles.ppm", "sharpen");
+    double durationCPPNaive = CPPNaive(3, path, "sharpen");
     std::cout << "Computation ended after " << durationCPPNaive << " seconds." << std::endl;
     std::cout << "" << std::endl;
 
