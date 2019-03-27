@@ -65,8 +65,6 @@ void Image::loadImage(std::string pathImage) {
     if (picture.fail()) {
         std::cout << "Image loading error." << std::endl;
         return;
-    } else {
-        std::cout << "Stream ok..." << std::endl;
     }
 
     // Assegna agli attributi di Image i valori necessari per procedere allo scorrimento del payload
@@ -76,7 +74,6 @@ void Image::loadImage(std::string pathImage) {
     int size = width * height * 3;
     tmp = new char[size];
 
-    // Ho ripreso il codice di loro che prevedeva dei char per leggere i byte
     picture.read(tmp, size);
 
     channels = 3;

@@ -15,23 +15,18 @@ Kernel* KernelFactory::createKernel(int size, std::string type) {
     Kernel* filter;
 
     if (type == "identity") {
-        std::cout << "Creating identity filter..." << std::endl;
         filter = new Identity(type, size);
     }
     else if (type == "gauss") {
-        std::cout << "Creating gaussian blur filter..." << std::endl;
         filter = new GaussianBlur(type, size);
     }
     else if (type == "sharpen") {
-        std::cout << "Creating sharpening filter..." << std::endl;
         filter = new Sharpen(type);
     }
     else if (type == "box") {
-        std::cout << "Creating box blur filter..." << std::endl;
         filter = new BoxBlur(type, size);
     }
     else if (type == "edges") {
-        std::cout << "Creating edge detector filter..." << std::endl;
         filter = new EdgeDetection(type);
     }
     else {

@@ -5,7 +5,9 @@
 
 int main() {
 
-    std::string path = "../images/computer_programming.ppm";
+    std::string path = "../images/original/milky.ppm";
+
+    /*
 
     std::string kernels[5] = {"identity", "gauss", "box", "edges", "sharpen"};
 
@@ -24,6 +26,18 @@ int main() {
         std::cout << " | CUDA naive: " << durationCUDANaive[i];
         std::cout << " | C++ naive: " << durationCPPNaive[i] << std::endl;
     }
+
+    */
+
+    double durationCPPNaive = CPPNaive(3, path);
+    std::cout << "C++ naive: " << durationCPPNaive << std::endl;
+
+    double durationCUDANaive = CUDANaive(3, path);
+    std::cout << "CUDA naive: " << durationCUDANaive << std::endl;
+
+    double durationCUDATiling = CUDAWithTiling(3, path);
+    std::cout << "CUDA tiling: " << durationCUDATiling << std::endl;
+
 
     return 0;
 }
