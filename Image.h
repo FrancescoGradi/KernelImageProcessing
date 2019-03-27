@@ -6,7 +6,6 @@
 #define KERNELIMAGEPROCESSING_IMAGE_H
 
 #include <string>
-#include "Pixel.h"
 
 class Image {
 

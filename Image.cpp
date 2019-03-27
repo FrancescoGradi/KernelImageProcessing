@@ -3,7 +3,6 @@
 //
 
 #include "Image.h"
-#include "Pixel.h"
 
 #include <iostream>
 #include <fstream>

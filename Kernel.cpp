@@ -3,7 +3,6 @@
 //
 
 #include "Kernel.h"
-#include "Pixel.h"
 #include "Image.h"
 
 #include <cmath>

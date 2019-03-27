@@ -507,7 +507,7 @@ double CPPNaive(int kernelSize, std::string imagePath) {
 
     for (auto &kernel : kernels) {
         std::stringstream path;
-        path << "../images/" << kernel->getType() << kernelSize << ".ppm";
+        path << "../images/sequential_" << kernel->getType() << ".ppm";
         std::string s = path.str();
 
         (kernel->applyFiltering(img->getPixels(), img->getWidth(), img->getHeight(), img->getChannels(),
