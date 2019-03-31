@@ -3,6 +3,7 @@
 #include "KernelFactory.h"
 #include "CUDAError.h"
 #include "filteringUtils.h"
+#include "speedTests.h"
 
 #include <iostream>
 #include <fstream>
@@ -11,6 +12,7 @@
 #include <cstdio>
 #include <ctime>
 #include <curand_mtgp32_kernel.h>
+#include <omp.h>
 
 #define CUDA_CHECK_RETURN(value) CheckCudaErrorAux(__FILE__,__LINE__, #value, value)
 #define TILE_WIDTH 32
@@ -524,3 +526,73 @@ double CPPNaive(int kernelSize, std::string imagePath) {
     return duration;
 
 }
+
+double filteringOpenMP(int kernelSize, std::string imagePath, std::string filterName) {
+    std::cout << "OpenMP filtering" << std::endl;
+    std::cout << "Starting clock..." << std::endl;
+    std::clock_t start;
+
+    start = std::clock();
+    double duration;
+
+    Image* img = new Image(imagePath);
+
+    auto* kf = new KernelFactory();
+
+    Kernel* kernel = kf->createKernel(kernelSize, filterName);
+
+    std::vector<Kernel *> kernels = kf->createAllKernels(kernelSize);
+    std::stringstream path;
+    path << "../images/openMP_" << kernel->getType() << kernelSize << ".ppm";
+    std::string s = path.str();
+
+    (kernel->applyFilteringOpenMP(img->getPixels(), img->getWidth(), img->getHeight(), img->getChannels(),
+                            img->getMagic()))->storeImage(s);
+
+    delete kernel;
+
+    kernels.clear();
+
+    duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
+    return duration;
+}
+
+
+double filteringOpenMP(int kernelSize, std::string imagePath) {
+    std::cout << "" << std::endl;
+    std::cout << "" << std::endl;
+    std::cout << "OpenMP filtering" << std::endl;
+    std::cout << "Starting clock..." << std::endl;
+    std::clock_t start;
+
+    start = std::clock();
+    double duration;
+
+    Image* img = new Image(imagePath);
+
+    auto* kf = new KernelFactory();
+    std::vector<Kernel *> kernels = kf->createAllKernels(kernelSize);
+
+    for (auto &kernel : kernels) {
+        std::stringstream path;
+        path << "../images/openMP_" << kernel->getType() << ".ppm";
+        std::string s = path.str();
+
+        (kernel->applyFilteringOpenMP(img->getPixels(), img->getWidth(), img->getHeight(), img->getChannels(),
+                                      img->getMagic()))->storeImage(s);
+    }
+
+    for (auto &kernel : kernels) {
+        delete(kernel);
+    }
+
+    kernels.clear();
+
+#pragma omp barrier
+
+    duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
+    return duration;
+
+}
+
+

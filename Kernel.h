@@ -21,6 +21,7 @@ public:
     float* getFilter();
 
     Image* applyFiltering(float* pixels, int width, int height, int channels, std::string magic);
+    Image *applyFilteringOpenMP(float *pixels, int width, int height, int channels, std::string magic);
 
 protected:
     float* filter;
@@ -28,7 +29,6 @@ protected:
 
 private:
     std::string type;
-
 };
 
 

@@ -3,9 +3,11 @@
 #include "KernelFactory.h"
 #include "speedTests.h"
 
+#include <chrono>
+
 int main() {
 
-    std::string path = "../images/original/milky.ppm";
+    std::string path = "../images/original/marbles.ppm";
 
     /*
 
@@ -31,6 +33,9 @@ int main() {
 
     double durationCPPNaive = CPPNaive(3, path);
     std::cout << "C++ naive: " << durationCPPNaive << std::endl;
+
+    double durationOpenMP = filteringOpenMP(3, path);
+    std::cout << "OpenMP: " << durationOpenMP  << std::endl;
 
     double durationCUDANaive = CUDANaive(3, path);
     std::cout << "CUDA naive: " << durationCUDANaive << std::endl;
