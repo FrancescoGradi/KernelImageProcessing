@@ -79,9 +79,9 @@ Image* Kernel::applyFilteringOpenMP(float* pixels, int width, int height, int ch
 
     auto* newPixels = new float[height * width * channels];
 
-#pragma omp parallel for private(sum, a, b)
-    for (int c = 0; c < channels; ++c) {
-        for (int i = 0; i < height; i++) {
+#pragma omp parallel for firstprivate(sum, a, b) schedule(static, 1024) num_threads(42)
+    for (int i = 0; i < height; i++) {
+        for (int c = 0; c < channels; ++c) {
             for (int j = 0; j < width; j++) {
 
                 sum = 0;
