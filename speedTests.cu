@@ -530,10 +530,8 @@ double CPPNaive(int kernelSize, std::string imagePath) {
 double filteringOpenMP(int kernelSize, std::string imagePath, std::string filterName) {
     std::cout << "OpenMP filtering" << std::endl;
     std::cout << "Starting clock..." << std::endl;
-    std::clock_t start;
 
-    start = std::clock();
-    double duration;
+    auto start = omp_get_wtime();
 
     Image* img = new Image(imagePath);
 
@@ -553,7 +551,7 @@ double filteringOpenMP(int kernelSize, std::string imagePath, std::string filter
 
     kernels.clear();
 
-    duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
+    double duration = (omp_get_wtime() - start);
     return duration;
 }
 
@@ -563,10 +561,8 @@ double filteringOpenMP(int kernelSize, std::string imagePath) {
     std::cout << "" << std::endl;
     std::cout << "OpenMP filtering" << std::endl;
     std::cout << "Starting clock..." << std::endl;
-    std::clock_t start;
 
-    start = std::clock();
-    double duration;
+    auto start = omp_get_wtime();
 
     Image* img = new Image(imagePath);
 
@@ -588,11 +584,7 @@ double filteringOpenMP(int kernelSize, std::string imagePath) {
 
     kernels.clear();
 
-#pragma omp barrier
-
-    duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
+    double duration = (omp_get_wtime() - start);
     return duration;
 
 }
-
-
