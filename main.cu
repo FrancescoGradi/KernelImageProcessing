@@ -52,7 +52,7 @@ int main() {
     std::cout << "CUDA tiling: " << durationCUDATiling << "   Speed up: " << durationCPPNaive/durationCUDATiling<< std::endl;
     std::cout << "CUDA tiling: " << durationCUDATiling << std::endl;
 
-    double durationCUDAConstant = CUDAConstantMemory(3, path);
+    double durationCUDAConstant = CUDAConstantMemory(3, path, "identity");
     std::cout << "CUDA constant memory: " << durationCUDAConstant << std::endl;
 
 

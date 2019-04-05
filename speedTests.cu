@@ -733,4 +733,134 @@ double CUDAConstantMemory(int kernelSize, std::string imagePath) {
 
 }
 
+__constant__ float MASK[KERNEL_SIZE * KERNEL_SIZE];
+
+__global__ void tilingConstant(float* pixelsDevice, float* resultDevice, int width, int height,
+                               int n, int widthResult, int heightResult, int channels) {
+
+    float N_ds[w][w];
+
+    for (int k = 0; k < channels; ++k) {
+
+        int dest = threadIdx.y * TILE_WIDTH + threadIdx.x;
+        int destY = dest / w;
+        int destX = dest % w;
+        int srcY = blockIdx.y * TILE_WIDTH + destY - (n/2);
+        int srcX = blockIdx.x * TILE_WIDTH + destX - (n/2);
+        int src = srcY*width*channels + srcX*channels + k;
+        if (srcY >= 0 && srcY < height && srcX >= 0 && srcX < width) {
+            N_ds[destY][destX] = pixelsDevice[src];
+        } else {
+            N_ds[destY][destX] = 0;
+        }
+
+        dest = threadIdx.y * TILE_WIDTH + threadIdx.x + TILE_WIDTH * TILE_WIDTH;
+        destY = dest / w;
+        destX = dest % w;
+        srcY = blockIdx.y * TILE_WIDTH + destY - (n/2);
+        srcX = blockIdx.x * TILE_WIDTH + destX - (n/2);
+        src = srcY*width*channels + srcX*channels + k;
+        if (destY < w) {
+            if (srcY >= 0 && srcY < height && srcX >= 0 && srcX < width) {
+                N_ds[destY][destX] = pixelsDevice[src];
+            } else {
+                N_ds[destY][destX] = 0;
+            }
+        }
+        __syncthreads();
+
+        float sum = 0;
+        int y, x;
+        for (y = 0; y < n; ++y) {
+            for (x = 0; x < n; ++x) {
+                sum += N_ds[threadIdx.y + y][threadIdx.x + x] * MASK[y * n + x];
+            }
+        }
+
+        if (sum < 0)
+            sum = 0;
+        if (sum > 1)
+            sum = 1;
+
+        y = blockIdx.y * TILE_WIDTH + threadIdx.y;
+        x = blockIdx.x * TILE_WIDTH + threadIdx.x;
+
+        if (y < heightResult && x < widthResult)
+            resultDevice[y*widthResult*channels + x*channels + k] = sum;
+        __syncthreads();
+    }
+}
+
+
+double CUDAConstantMemory(int kernelSize, std::string imagePath, std::string filterName) {
+
+    std::cout << "CUDA tiling filtering" << std::endl;
+    std::cout << "Starting clock..." << std::endl;
+    std::clock_t start;
+
+    start = std::clock();
+    double duration;
+
+    Image* img = new Image(imagePath);
+
+    float* pixels = img->getPixels();
+    int width = img->getWidth();
+    int height = img->getHeight();
+    int channels = img->getChannels();
+
+    auto* kf = new KernelFactory();
+    Kernel* kernel = kf->createKernel(kernelSize, filterName);
+
+    float* identity = kernel->getFilter();
+
+    int widthResult = width - (kernelSize/2) * 2;
+    int heightResult = height - (kernelSize/2) * 2;
+
+    float* result = new float[widthResult * heightResult * channels];
+
+    // Allocazione memoria nel device
+    float* pixelsDevice;
+    float* resultDevice;
+
+    CUDA_CHECK_RETURN(cudaMalloc((void **)&pixelsDevice, sizeof(float) * width * height * channels));
+    CUDA_CHECK_RETURN(cudaMalloc((void **)&resultDevice, sizeof(float) * widthResult * heightResult * channels));
+
+    // Copia delle matrici nel device
+    CUDA_CHECK_RETURN(cudaMemcpy(pixelsDevice, pixels, width * height * channels * sizeof(float), cudaMemcpyHostToDevice));
+    CUDA_CHECK_RETURN(cudaMemcpyToSymbol(MASK, identity, KERNEL_SIZE * KERNEL_SIZE * sizeof(float)));
+
+    dim3 blockDim(TILE_WIDTH, TILE_WIDTH);
+    dim3 gridDim(ceil(((float) widthResult) / TILE_WIDTH), ceil(((float) heightResult) / TILE_WIDTH));
+
+    // Invocazione del kernel
+    tilingConstant<<<gridDim, blockDim>>>(pixelsDevice, resultDevice, width, height, kernelSize, widthResult, heightResult, channels);
+
+    cudaDeviceSynchronize();
+
+    CUDA_CHECK_RETURN(cudaMemcpy(result, resultDevice, sizeof(float) * widthResult * heightResult * channels,
+                                 cudaMemcpyDeviceToHost));
+
+    Image* newImage = new Image(result, widthResult, heightResult, 255, channels, img->getMagic());
+
+    newImage->storeImage("../images/cuda_constant_" + filterName + ".ppm");
+
+    cudaFree(pixelsDevice);
+    cudaFree(resultDevice);
+
+    delete [] pixels;
+    delete [] identity;
+
+    duration = (std::clock() - start) / (double) CLOCKS_PER_SEC;
+
+    printf("# pixels totali immagine nuova: %d\n", widthResult * heightResult);
+    printf("gridDim: %d, %d\n", gridDim.x, gridDim.y);
+    printf("blockDim: %d, %d\n", blockDim.x, blockDim.y);
+    printf("# blocchi: %d\n", gridDim.x * gridDim.y);
+    printf("Threads per blocco: %d\n", blockDim.x * blockDim.y);
+    printf("Threads totali: %d\n", blockDim.x * blockDim.y * gridDim.x * gridDim.y);
+
+    return duration;
+
+}
+
 
