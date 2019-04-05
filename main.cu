@@ -5,6 +5,13 @@
 
 #include <chrono>
 
+#ifndef TILE_WIDTH
+#define TILE_WIDTH 32
+#endif
+#ifndef w
+#define w (TILE_WIDTH + 3 - 1)
+#endif
+
 int main() {
 
     std::string path = "../images/original/marbles.ppm";
@@ -42,6 +49,9 @@ int main() {
 
     double durationCUDATiling = CUDAWithTiling(3, path);
     std::cout << "CUDA tiling: " << durationCUDATiling << std::endl;
+
+    double durationCUDAConstant = CUDAConstantMemory(3, path);
+    std::cout << "CUDA constant memory: " << durationCUDAConstant << std::endl;
 
 
     return 0;
