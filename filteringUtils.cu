@@ -103,4 +103,3 @@ __global__ void tiling(float* pixelsDevice, float* kernelDevice, float* resultDe
         __syncthreads();
     }
 }
-

@@ -2,6 +2,7 @@
 #include "Kernel.h"
 #include "KernelFactory.h"
 #include "speedTests.h"
+#include "constantMemoryUtils.h"
 
 #include <chrono>
 #include <omp.h>
@@ -15,7 +16,7 @@
 
 int main() {
 
-    std::string path = "../images/original/marbles.ppm";
+    std::string path = "../images/original/milky.ppm";
 
     /*
 
@@ -49,11 +50,10 @@ int main() {
     std::cout << "CUDA naive: " << durationCUDANaive << "   Speed up: " << durationCPPNaive/durationCUDANaive << std::endl;
 
     double durationCUDATiling = CUDAWithTiling(3, path);
-    std::cout << "CUDA tiling: " << durationCUDATiling << "   Speed up: " << durationCPPNaive/durationCUDATiling<< std::endl;
-    std::cout << "CUDA tiling: " << durationCUDATiling << std::endl;
+    std::cout << "CUDA tiling: " << durationCUDATiling << "   Speed up: " << durationCPPNaive/durationCUDATiling << std::endl;
 
-    double durationCUDAConstant = CUDAConstantMemory(3, path, "identity");
-    std::cout << "CUDA constant memory: " << durationCUDAConstant << std::endl;
+    double durationCUDAConstant = CUDAConstantMemory(3, path);
+    std::cout << "CUDA constant memory: " << durationCUDAConstant << "   Speed up: " << durationCPPNaive/durationCUDAConstant << std::endl;
 
 
     return 0;

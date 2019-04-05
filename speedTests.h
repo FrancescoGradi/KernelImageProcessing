@@ -11,13 +11,10 @@ double CUDAWithTiling(int kernelSize, std::string imagePath, std::string filterN
 double CUDANaive(int kernelSize, std::string imagePath, std::string filterName);
 double CPPNaive(int kernelSize, std::string imagePath, std::string filterName);
 double filteringOpenMP(int kernelSize, std::string imagePath, std::string filterName);
-double CUDAConstantMemory(int kernelSize, std::string imagePath, std::string filterName);
 
 double CUDAWithTiling(int kernelSize, std::string imagePath);
 double CUDANaive(int kernelSize, std::string imagePath);
 double CPPNaive(int kernelSize, std::string imagePath);
 double filteringOpenMP(int kernelSize, std::string imagePath);
-double CUDAConstantMemory(int kernelSize, std::string imagePath);
-
 
 #endif //KERNELIMAGEPROCESSING_SPEEDTESTS_H
