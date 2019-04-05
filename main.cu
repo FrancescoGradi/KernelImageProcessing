@@ -4,6 +4,7 @@
 #include "speedTests.h"
 
 #include <chrono>
+#include <omp.h>
 
 #ifndef TILE_WIDTH
 #define TILE_WIDTH 32
@@ -42,12 +43,13 @@ int main() {
     std::cout << "C++ naive: " << durationCPPNaive << std::endl;
 
     double durationOpenMP = filteringOpenMP(3, path);
-    std::cout << "OpenMP: " << durationOpenMP  << std::endl;
+    std::cout << "OpenMP: " << durationOpenMP << "   Speed up: " << durationCPPNaive/durationOpenMP << std::endl;
 
     double durationCUDANaive = CUDANaive(3, path);
-    std::cout << "CUDA naive: " << durationCUDANaive << std::endl;
+    std::cout << "CUDA naive: " << durationCUDANaive << "   Speed up: " << durationCPPNaive/durationCUDANaive << std::endl;
 
     double durationCUDATiling = CUDAWithTiling(3, path);
+    std::cout << "CUDA tiling: " << durationCUDATiling << "   Speed up: " << durationCPPNaive/durationCUDATiling<< std::endl;
     std::cout << "CUDA tiling: " << durationCUDATiling << std::endl;
 
     double durationCUDAConstant = CUDAConstantMemory(3, path);
