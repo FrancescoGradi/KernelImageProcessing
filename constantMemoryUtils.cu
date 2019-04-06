@@ -251,6 +251,8 @@ __global__ void constantMemoryFilteringSharpen(float* pixelsDevice, float* resul
 
 double CUDAConstantMemory(int kernelSize, std::string imagePath, std::string filterName) {
 
+    std::cout << "" << std::endl;
+    std::cout << "" << std::endl;
     std::cout << "CUDA constant memory filtering" << std::endl;
     std::cout << "Starting clock..." << std::endl;
     std::clock_t start;

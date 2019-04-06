@@ -16,43 +16,44 @@
 
 int main() {
 
-    std::string path = "../images/original/milky.ppm";
+    std::string path = "../images/original/hutton.ppm";
 
-    /*
+    std::cout << "" << std::endl;
+    std::cout << "Single Tests: a single filtering for each convolution method." << std::endl;
 
-    std::string kernels[5] = {"identity", "gauss", "box", "edges", "sharpen"};
-
-    double durationCUDATiling[5];
-    double durationCUDANaive[5];
-    double durationCPPNaive[5];
-
-    for(int i = 0; i < 5; i++) {
-        durationCUDATiling[i] = CUDAWithTiling(3, path, kernels[i]);
-        durationCUDANaive[i] = CUDANaive(3, path, kernels[i]);
-        durationCPPNaive[i] = CPPNaive(3, path, kernels[i]);
-    }
-
-    for(int i = 0; i < 5; i++) {
-        std::cout << kernels[i] << " duration: CUDA with tiling: " << durationCUDATiling[i];
-        std::cout << " | CUDA naive: " << durationCUDANaive[i];
-        std::cout << " | C++ naive: " << durationCPPNaive[i] << std::endl;
-    }
-
-    */
-
-    double durationCPPNaive = CPPNaive(3, path);
+    double durationCPPNaive = CPPNaive(3, path, "gauss");
     std::cout << "C++ naive: " << durationCPPNaive << std::endl;
 
-    double durationOpenMP = filteringOpenMP(3, path);
+    double durationOpenMP = filteringOpenMP(3, path, "gauss");
     std::cout << "OpenMP: " << durationOpenMP << "   Speed up: " << durationCPPNaive/durationOpenMP << std::endl;
 
-    double durationCUDANaive = CUDANaive(3, path);
+    double durationCUDANaive = CUDANaive(3, path, "gauss");
     std::cout << "CUDA naive: " << durationCUDANaive << "   Speed up: " << durationCPPNaive/durationCUDANaive << std::endl;
 
-    double durationCUDATiling = CUDAWithTiling(3, path);
+    double durationCUDAConstant = CUDAConstantMemory(3, path, "gauss");
+    std::cout << "CUDA constant memory: " << durationCUDAConstant << "   Speed up: " << durationCPPNaive/durationCUDAConstant << std::endl;
+
+    double durationCUDATiling = CUDAWithTiling(3, path, "gauss");
     std::cout << "CUDA tiling: " << durationCUDATiling << "   Speed up: " << durationCPPNaive/durationCUDATiling << std::endl;
 
-    double durationCUDAConstant = CUDAConstantMemory(3, path);
+
+    std::cout << "" << std::endl;
+    std::cout << "" << std::endl;
+    std::cout << "Mutiple Tests: all mask filtering for each convolution method." << std::endl;
+
+    durationCPPNaive = CPPNaive(3, path);
+    std::cout << "C++ naive: " << durationCPPNaive << std::endl;
+
+    durationOpenMP = filteringOpenMP(3, path);
+    std::cout << "OpenMP: " << durationOpenMP << "   Speed up: " << durationCPPNaive/durationOpenMP << std::endl;
+
+    durationCUDANaive = CUDANaive(3, path);
+    std::cout << "CUDA naive: " << durationCUDANaive << "   Speed up: " << durationCPPNaive/durationCUDANaive << std::endl;
+
+    durationCUDATiling = CUDAWithTiling(3, path);
+    std::cout << "CUDA tiling: " << durationCUDATiling << "   Speed up: " << durationCPPNaive/durationCUDATiling << std::endl;
+
+    durationCUDAConstant = CUDAConstantMemory(3, path);
     std::cout << "CUDA constant memory: " << durationCUDAConstant << "   Speed up: " << durationCPPNaive/durationCUDAConstant << std::endl;
 
 

@@ -21,6 +21,8 @@
 
 double CUDAWithTiling(int kernelSize, std::string imagePath, std::string filterName) {
 
+    std::cout << "" << std::endl;
+    std::cout << "" << std::endl;
     std::cout << "CUDA tiling filtering" << std::endl;
     std::cout << "Starting clock..." << std::endl;
     std::clock_t start;
@@ -242,6 +244,8 @@ double CUDAWithTiling(int kernelSize, std::string imagePath) {
 
 double CUDANaive(int kernelSize, std::string imagePath, std::string filterName) {
 
+    std::cout << "" << std::endl;
+    std::cout << "" << std::endl;
     std::cout << "CUDA naive filtering" << std::endl;
     std::cout << "Starting clock..." << std::endl;
 	std::clock_t start;
@@ -463,6 +467,8 @@ double CUDANaive(int kernelSize, std::string imagePath) {
 
 double CPPNaive(int kernelSize, std::string imagePath, std::string filterName) {
 
+    std::cout << "" << std::endl;
+    std::cout << "" << std::endl;
     std::cout << "C++ sequential naive filtering" << std::endl;
     std::cout << "Starting clock..." << std::endl;
     std::clock_t start;
@@ -494,6 +500,7 @@ double CPPNaive(int kernelSize, std::string imagePath, std::string filterName) {
 }
 
 double CPPNaive(int kernelSize, std::string imagePath) {
+
     std::cout << "" << std::endl;
     std::cout << "" << std::endl;
     std::cout << "C++ sequential naive filtering" << std::endl;
@@ -529,6 +536,9 @@ double CPPNaive(int kernelSize, std::string imagePath) {
 }
 
 double filteringOpenMP(int kernelSize, std::string imagePath, std::string filterName) {
+
+    std::cout << "" << std::endl;
+    std::cout << "" << std::endl;
     std::cout << "OpenMP filtering" << std::endl;
     std::cout << "Starting clock..." << std::endl;
 
@@ -558,6 +568,7 @@ double filteringOpenMP(int kernelSize, std::string imagePath, std::string filter
 
 
 double filteringOpenMP(int kernelSize, std::string imagePath) {
+
     std::cout << "" << std::endl;
     std::cout << "" << std::endl;
     std::cout << "OpenMP filtering" << std::endl;
