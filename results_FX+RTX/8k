@@ -1,0 +1,90 @@
+Single Tests: a single filtering for each convolution method.
+
+
+C++ sequential naive filtering
+Starting clock...
+C++ naive: 9.83157
+
+
+OpenMP filtering
+Starting clock...
+OpenMP: 2.97439   Speed up: 3.30541
+
+
+CUDA naive filtering
+Starting clock...
+# pixels totali immagine nuova: 33153604
+gridDim: 240, 135
+blockDim: 32, 32
+# blocchi: 32400
+Threads per blocco: 1024
+Threads totali: 33177600
+CUDA naive: 2.28784   Speed up: 4.29731
+
+
+CUDA constant memory filtering
+Starting clock...
+# pixels totali immagine nuova: 33153604
+gridDim: 240, 135
+blockDim: 32, 32
+# blocchi: 32400
+Threads per blocco: 1024
+Threads totali: 33177600
+CUDA constant memory: 2.056   Speed up: 4.78188
+
+
+CUDA tiling filtering
+Starting clock...
+# pixels totali immagine nuova: 33153604
+gridDim: 240, 135
+blockDim: 32, 32
+# blocchi: 32400
+Threads per blocco: 1024
+Threads totali: 33177600
+CUDA tiling: 2.05491   Speed up: 4.78443
+
+
+Mutiple Tests: all mask filtering for each convolution method.
+
+
+C++ sequential naive filtering
+Starting clock...
+C++ naive: 46.3542
+
+
+OpenMP filtering
+Starting clock...
+OpenMP: 11.1993   Speed up: 4.13903
+
+
+CUDA naive filtering
+Starting clock...
+# pixels totali immagine nuova: 33153604
+gridDim: 240, 135
+blockDim: 32, 32
+# blocchi: 32400
+Threads per blocco: 1024
+Threads totali: 33177600
+CUDA naive: 5.64542   Speed up: 8.21093
+
+
+CUDA tiling filtering
+Starting clock...
+# pixels totali immagine nuova: 33153604
+gridDim: 240, 135
+blockDim: 32, 32
+# blocchi: 32400
+Threads per blocco: 1024
+Threads totali: 33177600
+CUDA tiling: 5.5919   Speed up: 8.28952
+
+
+CUDA constant memory filtering
+Starting clock...
+# pixels totali immagine nuova: 33153604
+gridDim: 240, 135
+blockDim: 32, 32
+# blocchi: 32400
+Threads per blocco: 1024
+Threads totali: 33177600
+CUDA constant memory: 5.59895   Speed up: 8.27907
