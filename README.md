@@ -35,6 +35,11 @@ Filtered images: from the left, <b>blur</b>, <b>boxBlur</b>, <b>edge</b> and <b>
 
 </div>
 
+##Test Configuration:
+
+- CPU: AMD Ryzen 5 2600 (6 Core, 12 Thread);
+- GPU: Nvidia 1060 6 GB;
+
 The results showed a huge speed up in every parallel
 situation: a boost of 3x was achieved with OpenMP, while
 with CUDA it was even greater, up to 8x.
