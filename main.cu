@@ -16,7 +16,7 @@
 
 int main() {
 
-    std::string path = "../images/original/hutton.ppm";
+    std::string path = "../images/original/ridridSunset.ppm";
 
     std::cout << "" << std::endl;
     std::cout << "Single Tests: a single filtering for each convolution method." << std::endl;
