@@ -35,7 +35,7 @@ Filtered images: from the left, <b>blur</b>, <b>boxBlur</b>, <b>edge</b> and <b>
 
 </div>
 
-##Test Configuration:
+Test Configuration:
 
 - CPU: AMD Ryzen 5 2600 (6 Core, 12 Thread);
 - GPU: Nvidia 1060 6 GB;
