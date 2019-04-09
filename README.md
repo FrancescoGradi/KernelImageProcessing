@@ -17,7 +17,7 @@ Here some examples with different kernels:
 <div align="center">
 
 <div>
-<img src="demoImages/ridSunset.png" width="20%"/>
+<img src="demoImages/sequential_identity.png" width="20%"/>
 </div>
 Original image.
 
