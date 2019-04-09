@@ -16,7 +16,9 @@ Here some examples with different kernels:
 
 <div align="center">
 
-<img src="demoImages/ridSunset.png" width="25%"/>
+<div>
+<img src="demoImages/ridSunset.png" width="20%"/>
+</div>
 Original image.
 
 </div>
@@ -24,10 +26,10 @@ Original image.
 <div align="center">
 
 <div>
-<img src="demoImages/sequential_blur.png" width="25%"/>
-<img src="demoImages/sequential_boxBlur.png" width="25%""/>
-<img src="demoImages/sequential_edge.png" width="25%""/>
-<img src="demoImages/sequential_sharpen.png" width="25%""/>
+<img src="demoImages/sequential_blur.png" width="20%"/>
+<img src="demoImages/sequential_boxBlur.png" width="20%""/>
+<img src="demoImages/sequential_edge.png" width="20%""/>
+<img src="demoImages/sequential_sharpen.png" width="20%""/>
 </div>
 Filtered images: from the left, <b>blur</b>, <b>boxBlur</b>, <b>edge</b> and <b>sharpen</b>
 
